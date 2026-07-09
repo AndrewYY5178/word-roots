@@ -1420,6 +1420,7 @@ function renderQuiz(quiz, key){
 }
 
 function renderSynonymSection(sec, si){
+  if(!sec || !sec.questions) return '';
   return sec.questions.map((q, qi) => {
     const state = (quizState.sections[si]?.questions?.[qi]) || {};
     const done = state.done;
