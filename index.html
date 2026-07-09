@@ -1362,14 +1362,14 @@ const QUIZZES = {
     sections: [{
       type: "indicate", label: "Indicate whether the following pairs have the same or different meanings",
       questions: [
-        {word:"decriminalize / tolerate",ans:"same"},
-        {word:"probity / fraud",ans:"different"},
-        {word:"criminology / murder",ans:"different"},
-        {word:"incriminate / acquit",ans:"different"},
-        {word:"probate / trial",ans:"different"},
-        {word:"recrimination / faultfinding",ans:"same"},
-        {word:"reprobate / scoundrel",ans:"same"},
-        {word:"approbation / criticism",ans:"different"}
+        {word:"decriminalize / tolerate",ans:"same",cn:"decriminalize = 合法化, tolerate = 容忍"},
+        {word:"probity / fraud",ans:"different",cn:"probity = 正直, fraud = 欺诈"},
+        {word:"criminology / murder",ans:"different",cn:"criminology = 犯罪学, murder = 谋杀"},
+        {word:"incriminate / acquit",ans:"different",cn:"incriminate = 使负罪, acquit = 宣判无罪"},
+        {word:"probate / trial",ans:"different",cn:"probate = 遗嘱认证, trial = 审判"},
+        {word:"recrimination / faultfinding",ans:"same",cn:"recrimination = 反责, faultfinding = 挑剔"},
+        {word:"reprobate / scoundrel",ans:"same",cn:"reprobate = 恶棍, scoundrel = 无赖"},
+        {word:"approbation / criticism",ans:"different",cn:"approbation = 赞许, criticism = 批评"}
       ]
     },{
       type: "match", label: "Match the definition on the left to the correct word on the right",
@@ -1485,8 +1485,8 @@ function renderQuiz(){
     ${quiz.sections.map((sec, si) => `
       <div class="quiz-section">
         <div class="quiz-section-label">${String.fromCharCode(65+si)}. ${sec.label}</div>
-        ${sec.type === 'synonym' || sec.type === 'analogy' ? renderSynonymSection(sec, si) : ''}
-        ${sec.type === 'match' || sec.type === 'indicate' ? renderCheckAllSection(sec, si) : ''}
+        ${sec.type === 'synonym' || sec.type === 'analogy' || sec.type === 'indicate' ? renderSynonymSection(sec, si) : ''}
+        ${sec.type === 'match' ? renderCheckAllSection(sec, si) : ''}
         ${sec.type === 'fill' ? renderFillSection(sec, si) : ''}
       </div>
     `).join('')}`;
@@ -1496,20 +1496,25 @@ function renderQuiz(){
 
 function renderSynonymSection(sec, si){
   if(!sec || !sec.questions) return '';
+  const isIndicate = sec.type === 'indicate';
   return sec.questions.map((q, qi) => {
     const ansKey = `${si}-${qi}`;
     const state = quizState._answers[ansKey] || {};
     const done = state.done;
+    const opts = isIndicate ? ['same','different'] : q.opts;
     return `<div class="quiz-q" data-si="${si}" data-qi="${qi}">
       <div class="quiz-q-num">${qi+1}. ${q.stem ? q.stem+' :: '+q.word+' : ___' : q.word}</div>
-      <div class="quiz-q-opts">${q.opts.map((o,oi) => {
+      <div class="quiz-q-opts">${opts.map((o,oi) => {
+        const val = isIndicate ? o : oi;
+        const isCorrect = isIndicate ? (o === q.ans) : (oi === q.ans);
         let cls = 'quiz-opt';
-        if(done && oi === q.ans) cls += ' correct';
-        if(state.chosen != null && oi === state.chosen && oi !== q.ans) cls += ' wrong';
+        if(done && isCorrect) cls += ' correct';
+        if(state.chosen != null && val == state.chosen && !isCorrect) cls += ' wrong';
         const disabled = done ? ' disabled' : '';
-        return `<span class="${cls}" data-oi="${oi}"${disabled}>${String.fromCharCode(97+oi)}. ${esc(o)}</span>`;
+        const label = isIndicate ? (o.charAt(0).toUpperCase()+o.slice(1)) : `${String.fromCharCode(97+oi)}. ${esc(o)}`;
+        return `<span class="${cls}" data-oi="${val}"${disabled}>${label}</span>`;
       }).join('')}</div>
-      ${done ? `<div class="quiz-feedback">${q.opts.map((o,oi) => `<span class="cn">${String.fromCharCode(97+oi)}. ${esc(o)} = ${esc(q.cn[oi])}</span><br>`).join('')}</div>` : ''}
+      ${done ? `<div class="quiz-feedback">${isIndicate ? `Answer: <strong>${q.ans}</strong> &mdash; ${esc(q.cn||'')}</div>` : q.opts.map((o,oi) => `<span class="cn">${String.fromCharCode(97+oi)}. ${esc(o)} = ${esc(q.cn[oi])}</span><br>`).join('')}</div>` : ''}
     </div>`;
   }).join('');
 }
@@ -1568,22 +1573,30 @@ function renderCheckAllSection(sec, si){
 }
 
 function bindQuizEvents(){
-  // Synonym / Analogy: click to answer
-  quizContent.querySelectorAll('.quiz-q-opts .quiz-opt:not([disabled])').forEach(opt => {
+  // Synonym / Analogy / Indicate: click to answer (immediate feedback)
+  quizContent.querySelectorAll('.quiz-q[data-si] .quiz-opt').forEach(opt => {
+    const qDiv = opt.closest('.quiz-q');
+    if(!qDiv) return;
+    const si = parseInt(qDiv.dataset.si), qi = parseInt(qDiv.dataset.qi);
+    const quiz = getQuizData();
+    if(!quiz) return;
+    const sec = quiz.sections[si];
+    if(!sec || !sec.questions) return;
+    // Only for synonym/analogy/indicate — NOT match/fill
+    if(sec.type === 'match' || sec.type === 'fill') return;
+    if(opt.hasAttribute('disabled')) return;
+
     opt.addEventListener('click', () => {
-      const qDiv = opt.closest('.quiz-q');
-      const si = parseInt(qDiv.dataset.si), qi = parseInt(qDiv.dataset.qi);
-      const quiz = getQuizData();
-      if(!quiz) return;
-      const sec = quiz.sections[si];
-      if(!sec || !sec.questions) return;
       const q = sec.questions[qi];
-      const oi = parseInt(opt.dataset.oi);
+      const oi = opt.dataset.oi;
       const ansKey = `${si}-${qi}`;
-      if(oi === q.ans){
-        quizState._answers[ansKey] = {chosen: oi, done: true};
+      // For indicate: "same"/"different" vs for others: numeric index
+      const chosenVal = sec.type === 'indicate' ? oi : parseInt(oi);
+      const correctVal = sec.type === 'indicate' ? q.ans : q.ans;
+      if(chosenVal == correctVal){
+        quizState._answers[ansKey] = {chosen: chosenVal, done: true};
       } else {
-        quizState._answers[ansKey] = {chosen: oi, done: false};
+        quizState._answers[ansKey] = {chosen: chosenVal, done: false};
       }
       renderQuiz();
     });
