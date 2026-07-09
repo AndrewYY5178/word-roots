@@ -481,7 +481,48 @@ function bindMouseTracking(){
 
 ---
 
-## 八、待完善功能（TODO）
+### 3.6 交互式 Quiz 系统
+
+- **入口**：标题下方统计栏的 "Quizzes" 和 "Review Quizzes" 按钮
+- **Quizzes**：以两个词根为一组的 quiz（如 Quiz 1-1: BENE + AM），点击进入答题界面
+- **Review Quizzes**：以 Unit 为单位的复习 quiz，交互方式相同
+- **题型与交互**：
+
+| 题型 | 描述 | 交互逻辑 |
+|------|------|---------|
+| **Synonym** | 选择近义词 | 点击选项 → 对：绿底 + 显示所有选项中文意思；错：红底 + 显示该选项中文，可继续选直到对 |
+| **Analogy** | 完成类比 | 同上（类比格式：A:B :: C:___） |
+| **Fill** | 选字母填空 | 先填写所有空 → 点 "Check All" → 对：绿框；错：红框 + 显示正确答案和中文 |
+| **Match** | 左右配对 | （待实现） |
+| **Indicate** | 判断正误 | （待实现） |
+
+- **数据源**：EPUB 电子书中的 quiz 章节（每两个词根后一个 quiz）
+- **答案**：手动确定（EPUB 无独立答案密钥）
+
+### 3.7 Quiz 数据格式
+
+```javascript
+// QUIZZES 对象：key = quiz 名称
+"Quiz 1-1": {
+  unit: 1, roots: ["BENE","AM"],
+  sections: [{
+    type: "synonym" | "analogy" | "fill",
+    label: "Section description",
+    questions: [{
+      word: "vocabulary word",       // 目标词
+      opts: ["a","b","c","d"],       // 选项
+      ans: 2,                         // 正确答案索引
+      cn: ["中1","中2","中3","中4"]   // 各选项中文（对后显示）
+    }],
+    // fill 类额外字段：
+    wordBank: [{letter:"a", word:"...", cn:"中文"}]
+  }]
+}
+```
+
+---
+
+## 九、待完善功能（TODO）
 
 - [ ] 为每个词汇卡片补充完整释义和例句（点击词根卡片后，在 Modal 中展示每个关联词汇的详细定义）
 - [ ] 数据持久化：考虑将 `WORD_DATA` 迁移到独立 JSON 文件，通过 `fetch` 加载
