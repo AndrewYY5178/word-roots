@@ -2,7 +2,7 @@
 
 > 词缀词源笔记本 · 基于 *Merriam-Webster's Vocabulary Builder* 的学习工具
 >
-> 最后更新：2026-07-09（添加字体规范 + 词汇详情面板要求）
+> 最后更新：2026-07-09（卡片构建流程 + macOS Menu Bar + 背景景深加深）
 
 ---
 
@@ -101,7 +101,103 @@
 
 ---
 
-## 三、功能清单
+## 三、卡片构建流程（强制执行）
+
+> **每次添加新词根时，必须严格遵循以下流程。不得省略任何步骤。**
+
+### 3.1 数据来源
+
+| 数据项 | 来源 | 方法 |
+|--------|------|------|
+| 词根名称 + 含义 + 词源注释 | EPUB 电子书 | 搜索词根定义段落（`<span class="bold">ROOT</span> is Latin for...`） |
+| 关联词汇列表 | `vocab-map.json` | 查 `word_to_root` 字典，获取该词根全部词汇 |
+| 词汇定义 + 例句 + 用法/词源 | EPUB 电子书 | 定位词汇条目段落（`<span class="bold">word</span>` + 释义 + `•` 例句 + 用法段落） |
+| US IPA 音标 | Wiktionary | `https://en.wiktionary.org/wiki/<word>` → "US (General American)" |
+| UK IPA 音标 | Wiktionary | `https://en.wiktionary.org/wiki/<word>` → "UK (Received Pronunciation)" |
+
+### 3.2 提取步骤
+
+```
+第 1 步：查 vocab-map.json → 确定该词根的所有关联词汇
+        例：BENE → [benediction, benefactor, beneficiary, benevolence]
+
+第 2 步：解压 EPUB → 定位词根定义所在 HTML 文件
+        例：BENE → split_005.html ("BENE is Latin for 'well'")
+
+第 3 步：遍历后续 HTML 文件 → 提取每个词汇的完整段落
+        直到遇到 Quiz 标题或下一个词根定义为止
+        每个词汇段落包含：
+          - 单词（<span class="bold">word</span>）
+          - 发音图片（跳过，不可用）
+          - 释义文本
+          - 例句（以 • 符号开头）
+          - 用法/词源说明（例句之后的段落）
+
+第 4 步：上网查询每个词汇的 IPA 音标
+        对 examples 和 words 中的所有词汇：
+          → https://en.wiktionary.org/wiki/<word>
+          → 提取 US 和 UK 两个 IPA（如果相同则重复填写）
+          → 格式：/ˈaɪ.pi.eɪ/（双斜杠）
+
+第 5 步：整理成 WORD_DATA 条目格式（见 §4.1）
+         确保 examples 中的词也包含在 wordDetails 中
+```
+
+### 3.3 条目格式模板
+
+```javascript
+{
+  root: "ROOT_NAME",              // 词根，全大写
+  meaning: "meaning in English",  // 英文含义（不要中文）
+  examples: [                      // 精选 3 个示例词，展示在卡片上
+    "word1",                       //   - 优先选自带 BENE 前缀的常见词
+    "word2",                       //   - 必须包含在 wordDetails 中
+    "word3"
+  ],
+  words: [                         // 完整关联词汇列表（从 EPUB 提取）
+    "word1", "word2",              //   - 包含 examples 中的所有词
+    "word3", "word4",              //   - 加上 EPUB 中该词根下的全部词汇
+    ...
+  ],
+  notes: "Latin/Greek X = Y. Brief explanation.",  // 词源注释
+  wordDetails: {                   // 每个词汇的完整释义
+    "word1": {                     //   - 覆盖 examples + words 中的所有词
+      pronunciationUS: "/US IPA/",  //   - 美式 IPA（Wiktionary 查询）
+      pronunciationUK: "/UK IPA/",  //   - 英式 IPA（Wiktionary 查询）
+      definition: "English definition from EPUB",     // 英文释义
+      example: "Example sentence from EPUB.",          // 例句
+      usage: "Usage and etymology notes from EPUB."    // 用法与词源
+    },
+    // ... 每个词都要有上述 5 个字段
+  }
+}
+```
+
+### 3.4 质量标准
+
+| 检查项 | 要求 |
+|--------|------|
+| ✅ 所有词都有 wordDetails | `examples` 和 `words` 中的每个词都必须有完整释义 |
+| ✅ IPA 双版本 | US 和 UK 都必须提供，不能相同（除非确实相同） |
+| ✅ 音标来自在线查询 | 不用 EPUB 图片音标，必须查询 Wiktionary/Cambridge |
+| ✅ 释义来自 EPUB | 优先使用书中的原文释义和例句 |
+| ✅ examples 精选 | 3 个常见、有代表性的词，不宜过多 |
+| ✅ notes 简洁 | 一行词源说明，含语言来源和基本含义 |
+| ✅ 全英文 | 除中文翻译标注外，所有内容用英文 |
+
+### 3.5 部署步骤
+
+```
+第 6 步：编辑 index.html → 修改 WORD_DATA 数组
+第 7 步：运行推送脚本 → python3 /tmp/push_word_roots.py
+         （或通过 GitHub API：获取 SHA → base64 编码 → PUT 更新）
+第 8 步：触发 Pages 重建 → POST /repos/.../pages/builds
+第 9 步：等待 ~15-20s → 访问网站验证（加 ?v=N 参数绕过缓存）
+```
+
+---
+
+## 四、功能清单
 
 ### 3.1 搜索框
 
@@ -142,7 +238,18 @@
   - 点击遮罩背景
   - 按 `Escape` 键
 
-### 3.4 统计显示
+### 3.4 macOS Menu Bar
+
+- **位置**：页面顶部固定
+- **样式**：macOS 风格半透明黑底（`rgba(0,0,0,0.48)` + `backdrop-filter: blur(14px)`），上下微细白边框
+- **左侧**：Apple Logo（SVG）+ App 名 "Roots & Affixes"（粗体）+ 菜单项 "How to Use" / "About"
+- **右侧**：北京时间（UTC+8），实时更新（每秒刷新）
+- **菜单交互**：
+  - 点击 "How to Use" → 弹出液态玻璃面板，介绍网站使用方法
+  - 点击 "About" → 弹出液态玻璃面板，介绍设计初心与项目目标
+  - 点击 × / 遮罩 / ESC 关闭
+
+### 3.5 统计显示
 
 - 页面顶部统计芯片：
   - `Total: N` — 当前显示的卡片数量
@@ -150,9 +257,9 @@
 
 ---
 
-## 四、数据模型
+## 五、数据模型
 
-### 4.1 词条结构
+### 5.1 词条结构
 
 ```typescript
 // WORD_DATA 数组中每个条目：
