@@ -90,8 +90,8 @@ body::after{
    [SHINY GRADIENT TEXT — Title]
    ================================================================ */
 .shiny-title{
-  font-family:'Playfair Display','Georgia',serif;
-  font-size:clamp(38px,6.5vw,64px);font-weight:900;
+  font-family:'Cochin','Georgia','Times New Roman',serif;
+  font-size:clamp(38px,6.5vw,64px);font-weight:700;
   letter-spacing:0.02em;line-height:1.1;
   text-align:center;
 
@@ -122,9 +122,9 @@ body::after{
   text-align:center;padding:36px 0 36px;
 }
 .header .subtitle{
-  font-family:'Inter',sans-serif;
-  font-size:clamp(12px,1.5vw,15px);color:var(--warm-dim);
-  margin-top:12px;font-weight:500;letter-spacing:0.05em;
+  font-family:'Snell Roundhand','Apple Chancery','Comic Sans MS',cursive;
+  font-size:clamp(14px,1.8vw,18px);color:var(--warm-dim);
+  margin-top:12px;font-weight:500;letter-spacing:0.03em;
 }
 .stats-row{
   display:flex;align-items:center;justify-content:center;gap:14px;
@@ -282,8 +282,8 @@ body::after{
 
 /* ── Card typography ── */
 .card-root{
-  font-family:'Playfair Display','Georgia',serif;
-  font-size:clamp(24px,3vw,32px);font-weight:900;
+  font-family:'Big Caslon','Playfair Display','Georgia',serif;
+  font-size:clamp(24px,3vw,32px);font-weight:500;
   letter-spacing:0.01em;line-height:1.15;color:var(--warm);
   margin-bottom:6px;word-break:break-all;
 }
@@ -426,8 +426,8 @@ body::after{
 .modal-close::after{transform:rotate(-45deg);}
 
 .modal-root{
-  font-family:'Playfair Display','Georgia',serif;
-  font-size:clamp(30px,5vw,44px);font-weight:900;
+  font-family:'Big Caslon','Playfair Display','Georgia',serif;
+  font-size:clamp(32px,5vw,46px);font-weight:500;
   letter-spacing:0.01em;line-height:1.1;color:var(--warm);
   margin-bottom:8px;word-break:break-all;
 }
@@ -459,6 +459,22 @@ body::after{
   background:rgba(248,244,233,0.08);
   padding:6px 14px;border-radius:14px;
   border:0.5px solid rgba(248,244,233,0.12);
+  cursor:pointer;
+  transition:all 0.2s ease;
+}
+.modal-examples .ex-word:hover{
+  background:rgba(248,244,233,0.18);
+  border-color:rgba(248,244,233,0.28);
+}
+.modal-examples .ex-word.selected{
+  background:rgba(78,205,196,0.22);
+  border-color:rgba(78,205,196,0.45);
+  color:#B8F0EC;
+}
+.modal-examples .ex-word.matched{
+  background:rgba(78,205,196,0.18);
+  border-color:rgba(78,205,196,0.35);
+  color:#B8F0EC;
 }
 .modal-letter{
   display:inline-block;margin-top:20px;
@@ -469,6 +485,34 @@ body::after{
   background:rgba(248,244,233,0.06);
   padding:5px 12px;border-radius:12px;
 }
+
+/* ── Word detail panel (in modal) ── */
+.word-detail{
+  margin-top:16px;padding:16px 18px;
+  background:rgba(248,244,233,0.06);
+  border-radius:var(--radius-sm);
+  border:0.5px solid rgba(248,244,233,0.10);
+  display:none;
+}
+.word-detail.open{display:block;}
+.word-detail-pron{
+  font-family:'Inter',sans-serif;
+  font-size:13px;font-weight:600;color:var(--accent);
+  margin-bottom:10px;letter-spacing:0.02em;
+}
+.word-detail-row{
+  margin-bottom:10px;
+}
+.word-detail-label{
+  font-size:9px;font-weight:800;text-transform:uppercase;
+  letter-spacing:0.1em;color:var(--warm-muted);
+  margin-bottom:3px;
+}
+.word-detail-text{
+  font-family:'Inter',sans-serif;
+  font-size:13px;color:var(--warm-dim);line-height:1.6;
+}
+.word-detail-text em{color:var(--warm);font-style:italic;}
 
 /* ================================================================
    [FOOTER]
@@ -570,7 +614,33 @@ const WORD_DATA = [{
     meaning: "well, good",
     examples: ["benefit", "beneficial", "benevolent"],
     words: ["benediction", "benefactor", "beneficiary", "benevolence"],
-    notes: "Latin bene = well. A benefit is a good result or effect. Something beneficial produces good results or effects."
+    notes: "Latin bene = well. A benefit is a good result or effect. Something beneficial produces good results or effects.",
+    wordDetails: {
+      "benediction": {
+        pronunciation: "ben-uh-DIK-shun",
+        definition: "A prayer that asks for God's blessing, especially a prayer that concludes a worship service.",
+        example: "The moment the bishop had finished his benediction, she squeezed quickly out of her row and darted out the cathedral's side entrance.",
+        usage: "In benediction, the bene root is joined by another Latin root, dictio (\"speaking\"), so the word's meaning becomes something like \"well-wishing.\" Perhaps the best-known benediction is the so-called Aaronic Benediction from the Bible, which begins, \"May the Lord bless you and keep you.\""
+      },
+      "benefactor": {
+        pronunciation: "BEN-uh-fak-tur",
+        definition: "Someone who helps another person or group, especially by giving money.",
+        example: "An anonymous benefactor had given $15 million to establish an ecological institute at the university.",
+        usage: "A benefactor may be involved in almost any field. One may endow a scholarship fund; another may give money to expand a library; still another may leave a generous sum to a hospital in her will. The famous benefactions of John D. Rockefeller included the gifts that established the University of Chicago and Rockefeller University."
+      },
+      "beneficiary": {
+        pronunciation: "ben-uh-FISH-ee-er-ee",
+        definition: "A person or organization that benefits or is expected to benefit from something, especially one that receives money or property when someone dies.",
+        example: "Living in a trailer in near-poverty, she received word in the mail that her father had died, naming her as the sole beneficiary of his life-insurance policy.",
+        usage: "Beneficiary is often used in connection with life insurance, but it shows up in many other contexts as well. A college may be the beneficiary of a private donation. Your uncle's will may make a church his sole beneficiary. A new employer's retirement plan may list you as the primary beneficiary."
+      },
+      "benevolence": {
+        pronunciation: "buh-NEV-uh-luns",
+        definition: "Kindness, generosity.",
+        example: "In those financially desperate years, the young couple was saved only by the benevolence of her elderly great-uncle.",
+        usage: "Part of benevolence comes from the Latin root meaning \"wish.\" The novels of Charles Dickens often include a benevolent figure who rescues the main characters at some point — Mr. Brownlow in Oliver Twist, Abel Magwitch in Great Expectations, and Mr. Jarndyce in Bleak House."
+      }
+    }
   }];
 
 /* ───────────────────────────────────────
@@ -708,52 +778,99 @@ function bindMouseTracking(){
 const overlay = document.getElementById('modalOverlay');
 const modalContent = document.getElementById('modalContent');
 const modalClose = document.getElementById('modalClose');
+let currentModalEntry = null;  // track which entry is shown in modal
 
 function bindCardClicks(){
   document.querySelectorAll('.glass-card').forEach(card => {
     card.addEventListener('click', () => {
       const entry = getFilteredData()[parseInt(card.dataset.index)];
       if(!entry) return;
-
-      const q = searchQuery.toLowerCase();
-      const allWords = [...entry.examples, ...(entry.words || [])];
-      const matchedWords = q ? allWords.filter(w => w.toLowerCase().includes(q)) : [];
-
-      // Build examples section, highlighting matches
-      const examplesHTML = entry.examples.map(ex => {
-        const isMatch = matchedWords.some(mw => mw.toLowerCase() === ex.toLowerCase());
-        return `<span class="ex-word${isMatch ? ' matched' : ''}">${esc(ex)}</span>`;
-      }).join('');
-
-      // If there are additional vocabulary words beyond examples, show them too
-      let extraWordsHTML = '';
-      if(entry.words && entry.words.length > 0) {
-        const extraWords = entry.words.filter(w => !entry.examples.some(ex => ex.toLowerCase() === w.toLowerCase()));
-        if(extraWords.length > 0) {
-          extraWordsHTML = `
-            <div class="modal-section-label" style="margin-top:16px;">More Words</div>
-            <div class="modal-examples">
-              ${extraWords.map(w => {
-                const isMatch = matchedWords.some(mw => mw.toLowerCase() === w.toLowerCase());
-                return `<span class="ex-word${isMatch ? ' matched' : ''}">${esc(w)}</span>`;
-              }).join('')}
-            </div>`;
-        }
-      }
-
-      modalContent.innerHTML = `
-        <div class="modal-root">${esc(entry.root)}</div>
-        <div class="modal-meaning">${esc(entry.meaning)}</div>
-        ${entry.notes ? `<div class="modal-notes">${esc(entry.notes)}</div>` : ''}
-        <div class="modal-section-label">Example Words</div>
-        <div class="modal-examples">${examplesHTML}</div>
-        ${extraWordsHTML}
-        ${matchedWords.length > 0 ? `<div style="margin-top:14px;font-size:11px;font-weight:600;color:#B8F0EC;">Search matched: ${esc(matchedWords.slice(0,6).join(', '))}${matchedWords.length > 6 ? '...' : ''}</div>` : ''}
-        <div class="modal-letter">Starts with &ldquo;${esc(entry.root.charAt(0).toUpperCase())}&rdquo;</div>
-      `;
-
+      currentModalEntry = entry;
+      renderModalContent(entry, null);
       overlay.classList.add('open');
       document.body.style.overflow = 'hidden';
+    });
+  });
+}
+
+function renderModalContent(entry, selectedWord){
+  const q = searchQuery.toLowerCase();
+  const allWords = [...entry.examples, ...(entry.words || [])];
+  const matchedWords = q ? allWords.filter(w => w.toLowerCase().includes(q)) : [];
+
+  const renderWord = (w, extraClass) => {
+    const isMatch = matchedWords.some(mw => mw.toLowerCase() === w.toLowerCase());
+    const isSelected = selectedWord && selectedWord.toLowerCase() === w.toLowerCase();
+    const cls = ['ex-word'];
+    if(isMatch) cls.push('matched');
+    if(isSelected) cls.push('selected');
+    return `<span class="${cls.join(' ')}" data-word="${esc(w)}">${esc(w)}</span>`;
+  };
+
+  const examplesHTML = entry.examples.map(w => renderWord(w)).join('');
+
+  let extraWordsHTML = '';
+  if(entry.words && entry.words.length > 0) {
+    const extraWords = entry.words.filter(w => !entry.examples.some(ex => ex.toLowerCase() === w.toLowerCase()));
+    if(extraWords.length > 0) {
+      extraWordsHTML = `
+        <div class="modal-section-label" style="margin-top:16px;">More Words</div>
+        <div class="modal-examples">
+          ${extraWords.map(w => renderWord(w)).join('')}
+        </div>`;
+    }
+  }
+
+  // Word detail panel
+  let detailHTML = '';
+  if(selectedWord && entry.wordDetails && entry.wordDetails[selectedWord]){
+    const d = entry.wordDetails[selectedWord];
+    detailHTML = `
+      <div class="word-detail open" id="wordDetail">
+        <div class="word-detail-pron">/${d.pronunciation}/</div>
+        <div class="word-detail-row">
+          <div class="word-detail-label">Definition</div>
+          <div class="word-detail-text">${esc(d.definition)}</div>
+        </div>
+        <div class="word-detail-row">
+          <div class="word-detail-label">Example</div>
+          <div class="word-detail-text"><em>${esc(d.example)}</em></div>
+        </div>
+        <div class="word-detail-row">
+          <div class="word-detail-label">Usage &amp; Etymology</div>
+          <div class="word-detail-text">${esc(d.usage)}</div>
+        </div>
+      </div>`;
+  } else {
+    detailHTML = `<div class="word-detail" id="wordDetail"></div>`;
+  }
+
+  modalContent.innerHTML = `
+    <div class="modal-root">${esc(entry.root)}</div>
+    <div class="modal-meaning">${esc(entry.meaning)}</div>
+    ${entry.notes ? `<div class="modal-notes">${esc(entry.notes)}</div>` : ''}
+    <div class="modal-section-label">Example Words</div>
+    <div class="modal-examples">${examplesHTML}</div>
+    ${extraWordsHTML}
+    ${detailHTML}
+    ${matchedWords.length > 0 ? `<div style="margin-top:14px;font-size:11px;font-weight:600;color:#B8F0EC;">Search matched: ${esc(matchedWords.slice(0,6).join(', '))}${matchedWords.length > 6 ? '...' : ''}</div>` : ''}
+    <div class="modal-letter">Starts with &ldquo;${esc(entry.root.charAt(0).toUpperCase())}&rdquo;</div>
+  `;
+
+  // Bind word clicks
+  modalContent.querySelectorAll('.ex-word').forEach(el => {
+    el.addEventListener('click', e => {
+      e.stopPropagation();
+      const word = el.dataset.word;
+      const currentlySelected = modalContent.querySelector('.ex-word.selected');
+
+      if(currentlySelected && currentlySelected.dataset.word === word){
+        // Deselect
+        renderModalContent(entry, null);
+      } else {
+        // Select new word
+        renderModalContent(entry, word);
+      }
     });
   });
 }
