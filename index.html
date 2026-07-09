@@ -314,6 +314,16 @@ body::after{
   background:rgba(248,244,233,0.16);
   border-color:rgba(248,244,233,0.22);
 }
+.card-examples .ex-word.matched{
+  background:rgba(78,205,196,0.18);
+  border-color:rgba(78,205,196,0.35);
+  color:#B8F0EC;
+}
+.card-word-match{
+  font-family:'Inter',sans-serif;
+  font-size:10px;font-weight:600;color:#B8F0EC;
+  margin-top:8px;letter-spacing:0.03em;
+}
 
 .card-expand-hint{
   position:absolute;bottom:10px;right:14px;z-index:5;
@@ -511,7 +521,7 @@ body::after{
   <!-- Search -->
   <div class="search-wrap">
     <div class="search-glass">
-      <input type="text" id="searchInput" placeholder="Search roots, meanings, or example words&hellip;" autocomplete="off">
+      <input type="text" id="searchInput" placeholder="Search roots, meanings, or any word from the book&hellip;" autocomplete="off">
       <span class="search-icon-svg">
         <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="rgba(248,244,233,0.45)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
       </span>
@@ -551,7 +561,9 @@ body::after{
 /* ───────────────────────────────────────
    [DATA]
    Add entries as you learn them.
-   { root, meaning, examples[], notes? }
+   { root, meaning, examples[], notes?, words[]? }
+   - examples: short display words shown on card
+   - words: full vocabulary list from the book (searchable)
    ─────────────────────────────────────── */
 const WORD_DATA = [];
 
@@ -600,7 +612,8 @@ function getFilteredData(){
         entry.root.toLowerCase().includes(q) ||
         entry.meaning.toLowerCase().includes(q) ||
         entry.examples.some(ex => ex.toLowerCase().includes(q)) ||
-        (entry.notes && entry.notes.toLowerCase().includes(q))
+        (entry.notes && entry.notes.toLowerCase().includes(q)) ||
+        (entry.words && entry.words.some(w => w.toLowerCase().includes(q)))
       );
     }
     return true;
@@ -634,17 +647,27 @@ function renderCards(){
     return;
   }
 
-  grid.innerHTML = data.map((entry, idx) => `
+  grid.innerHTML = data.map((entry, idx) => {
+    const q = searchQuery.toLowerCase();
+    // Determine which words match (if any)
+    const allWords = [...entry.examples, ...(entry.words || [])];
+    const matchedWords = q ? allWords.filter(w => w.toLowerCase().includes(q)) : [];
+
+    return `
     <div class="glass-card" data-index="${idx}">
       <div class="card-root">${esc(entry.root)}</div>
       <div class="card-meaning">${esc(entry.meaning)}</div>
       ${entry.notes ? `<div class="card-notes">${esc(entry.notes)}</div>` : ''}
       <div class="card-examples">
-        ${entry.examples.map(ex => `<span class="ex-word">${esc(ex)}</span>`).join('')}
+        ${entry.examples.map(ex => {
+          const isMatch = matchedWords.some(mw => mw.toLowerCase() === ex.toLowerCase());
+          return `<span class="ex-word${isMatch ? ' matched' : ''}">${esc(ex)}</span>`;
+        }).join('')}
       </div>
+      ${matchedWords.length > 0 ? `<div class="card-word-match">Matches: ${esc(matchedWords.slice(0,4).join(', '))}${matchedWords.length > 4 ? '...' : ''}</div>` : ''}
       <div class="card-expand-hint">click to expand</div>
     </div>
-  `).join('');
+  `}).join('');
 
   bindMouseTracking();
   bindCardClicks();
@@ -686,14 +709,40 @@ function bindCardClicks(){
       const entry = getFilteredData()[parseInt(card.dataset.index)];
       if(!entry) return;
 
+      const q = searchQuery.toLowerCase();
+      const allWords = [...entry.examples, ...(entry.words || [])];
+      const matchedWords = q ? allWords.filter(w => w.toLowerCase().includes(q)) : [];
+
+      // Build examples section, highlighting matches
+      const examplesHTML = entry.examples.map(ex => {
+        const isMatch = matchedWords.some(mw => mw.toLowerCase() === ex.toLowerCase());
+        return `<span class="ex-word${isMatch ? ' matched' : ''}">${esc(ex)}</span>`;
+      }).join('');
+
+      // If there are additional vocabulary words beyond examples, show them too
+      let extraWordsHTML = '';
+      if(entry.words && entry.words.length > 0) {
+        const extraWords = entry.words.filter(w => !entry.examples.some(ex => ex.toLowerCase() === w.toLowerCase()));
+        if(extraWords.length > 0) {
+          extraWordsHTML = `
+            <div class="modal-section-label" style="margin-top:16px;">More Words</div>
+            <div class="modal-examples">
+              ${extraWords.map(w => {
+                const isMatch = matchedWords.some(mw => mw.toLowerCase() === w.toLowerCase());
+                return `<span class="ex-word${isMatch ? ' matched' : ''}">${esc(w)}</span>`;
+              }).join('')}
+            </div>`;
+        }
+      }
+
       modalContent.innerHTML = `
         <div class="modal-root">${esc(entry.root)}</div>
         <div class="modal-meaning">${esc(entry.meaning)}</div>
         ${entry.notes ? `<div class="modal-notes">${esc(entry.notes)}</div>` : ''}
         <div class="modal-section-label">Example Words</div>
-        <div class="modal-examples">
-          ${entry.examples.map(ex => `<span class="ex-word">${esc(ex)}</span>`).join('')}
-        </div>
+        <div class="modal-examples">${examplesHTML}</div>
+        ${extraWordsHTML}
+        ${matchedWords.length > 0 ? `<div style="margin-top:14px;font-size:11px;font-weight:600;color:#B8F0EC;">Search matched: ${esc(matchedWords.slice(0,6).join(', '))}${matchedWords.length > 6 ? '...' : ''}</div>` : ''}
         <div class="modal-letter">Starts with &ldquo;${esc(entry.root.charAt(0).toUpperCase())}&rdquo;</div>
       `;
 
