@@ -497,8 +497,13 @@ body::after{
 .word-detail.open{display:block;}
 .word-detail-pron{
   font-family:'Inter',sans-serif;
-  font-size:13px;font-weight:600;color:var(--accent);
-  margin-bottom:10px;letter-spacing:0.02em;
+  font-size:14px;font-weight:600;color:var(--accent);
+  margin-bottom:10px;line-height:1.7;
+}
+.pron-label{
+  display:inline-block;width:22px;
+  font-size:9px;font-weight:800;letter-spacing:0.08em;
+  color:var(--warm-muted);
 }
 .word-detail-row{
   margin-bottom:10px;
@@ -616,29 +621,54 @@ const WORD_DATA = [{
     words: ["benediction", "benefactor", "beneficiary", "benevolence"],
     notes: "Latin bene = well. A benefit is a good result or effect. Something beneficial produces good results or effects.",
     wordDetails: {
+      "benefit": {
+        pronunciationUS: "/ˈbɛn.əˌfɪt/",
+        pronunciationUK: "/ˈbɛn.ɪ.fɪt/",
+        definition: "A good or helpful result or effect; something that promotes well-being.",
+        example: "The new park has been a great benefit to the entire community.",
+        usage: "From Latin benefactum (\"good deed\"). Benefit is the most common English word derived from the BENE root. It functions as both a noun and a verb."
+      },
+      "beneficial": {
+        pronunciationUS: "/ˌbɛn.əˈfɪʃ.əl/",
+        pronunciationUK: "/ˌbɛn.ɪˈfɪʃ.əl/",
+        definition: "Producing good results or helpful effects; advantageous.",
+        example: "Regular exercise is highly beneficial to your overall health.",
+        usage: "From Latin beneficium (\"benefit, favor\"). Often used in formal contexts to describe something that has a positive effect."
+      },
+      "benevolent": {
+        pronunciationUS: "/bəˈnɛv.ə.lənt/",
+        pronunciationUK: "/bəˈnɛv.ə.lənt/",
+        definition: "Well-meaning and kindly; characterized by goodwill.",
+        example: "The benevolent donor funded scholarships for dozens of underprivileged students.",
+        usage: "From Latin bene volens (\"well-wishing\"). Describes a person or organization disposed to doing good."
+      },
       "benediction": {
-        pronunciation: "ben-uh-DIK-shun",
+        pronunciationUS: "/ˌbɛn.əˈdɪk.ʃən/",
+        pronunciationUK: "/ˌbɛn.ɪˈdɪk.ʃən/",
         definition: "A prayer that asks for God's blessing, especially a prayer that concludes a worship service.",
         example: "The moment the bishop had finished his benediction, she squeezed quickly out of her row and darted out the cathedral's side entrance.",
-        usage: "In benediction, the bene root is joined by another Latin root, dictio (\"speaking\"), so the word's meaning becomes something like \"well-wishing.\" Perhaps the best-known benediction is the so-called Aaronic Benediction from the Bible, which begins, \"May the Lord bless you and keep you.\""
+        usage: "In benediction, the bene root is joined by another Latin root, dictio (\"speaking\"), so the word's meaning becomes \"well-wishing.\" The best-known benediction is the Aaronic Benediction: \"May the Lord bless you and keep you.\""
       },
       "benefactor": {
-        pronunciation: "BEN-uh-fak-tur",
+        pronunciationUS: "/ˈbɛn.əˌfæk.tɚ/",
+        pronunciationUK: "/ˈbɛn.əˌfæk.tə/",
         definition: "Someone who helps another person or group, especially by giving money.",
         example: "An anonymous benefactor had given $15 million to establish an ecological institute at the university.",
-        usage: "A benefactor may be involved in almost any field. One may endow a scholarship fund; another may give money to expand a library; still another may leave a generous sum to a hospital in her will. The famous benefactions of John D. Rockefeller included the gifts that established the University of Chicago and Rockefeller University."
+        usage: "A benefactor may operate in almost any field. One may endow a scholarship fund; another may give money to expand a library. The famous benefactions of John D. Rockefeller included the gifts that established the University of Chicago and Rockefeller University."
       },
       "beneficiary": {
-        pronunciation: "ben-uh-FISH-ee-er-ee",
+        pronunciationUS: "/ˌbɛn.əˈfɪʃ.iˌɛɹ.i/",
+        pronunciationUK: "/ˌbɛn.ɪˈfɪʃ.əɹ.i/",
         definition: "A person or organization that benefits or is expected to benefit from something, especially one that receives money or property when someone dies.",
         example: "Living in a trailer in near-poverty, she received word in the mail that her father had died, naming her as the sole beneficiary of his life-insurance policy.",
-        usage: "Beneficiary is often used in connection with life insurance, but it shows up in many other contexts as well. A college may be the beneficiary of a private donation. Your uncle's will may make a church his sole beneficiary. A new employer's retirement plan may list you as the primary beneficiary."
+        usage: "Beneficiary is often used in connection with life insurance, but it appears in many other contexts. A college may be the beneficiary of a private donation; a church may be the sole beneficiary of a will."
       },
       "benevolence": {
-        pronunciation: "buh-NEV-uh-luns",
+        pronunciationUS: "/bəˈnɛv.ə.ləns/",
+        pronunciationUK: "/bəˈnɛv.ə.ləns/",
         definition: "Kindness, generosity.",
         example: "In those financially desperate years, the young couple was saved only by the benevolence of her elderly great-uncle.",
-        usage: "Part of benevolence comes from the Latin root meaning \"wish.\" The novels of Charles Dickens often include a benevolent figure who rescues the main characters at some point — Mr. Brownlow in Oliver Twist, Abel Magwitch in Great Expectations, and Mr. Jarndyce in Bleak House."
+        usage: "Part of benevolence comes from the Latin root meaning \"wish.\" The novels of Charles Dickens often include a benevolent figure who rescues the main characters — Mr. Brownlow in Oliver Twist, Abel Magwitch in Great Expectations, and Mr. Jarndyce in Bleak House."
       }
     }
   }];
@@ -827,7 +857,10 @@ function renderModalContent(entry, selectedWord){
     const d = entry.wordDetails[selectedWord];
     detailHTML = `
       <div class="word-detail open" id="wordDetail">
-        <div class="word-detail-pron">/${d.pronunciation}/</div>
+        <div class="word-detail-pron">
+          <span class="pron-label">US</span> ${esc(d.pronunciationUS)}<br>
+          <span class="pron-label">UK</span> ${esc(d.pronunciationUK)}
+        </div>
         <div class="word-detail-row">
           <div class="word-detail-label">Definition</div>
           <div class="word-detail-text">${esc(d.definition)}</div>
