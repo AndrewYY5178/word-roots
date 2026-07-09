@@ -1395,28 +1395,35 @@ function openQuiz(type){
   quizOverlay.classList.add('open');
 }
 
+function getQuizData(){
+  if(!quizState.key) return null;
+  const src = quizState.type === 'quizzes' ? QUIZZES : REVIEW_QUIZZES;
+  return src[quizState.key] || null;
+}
+
 function startQuiz(key, type){
   const data = type === 'quizzes' ? QUIZZES : REVIEW_QUIZZES;
   const quiz = data[key];
   if(!quiz) return;
-  quizState = { key, type, sections: quiz.sections.map(s => ({...s})) };
-
-  renderQuiz(quiz, key);
+  quizState = { key, type, sections: JSON.parse(JSON.stringify(quiz.sections)) };
+  renderQuiz();
 }
 
-function renderQuiz(quiz, key){
+function renderQuiz(){
+  const quiz = getQuizData();
+  if(!quiz) return;
   quizContent.innerHTML = `
-    <h2>${key}</h2>
+    <h2>${quizState.key}</h2>
     <h3>${quiz.roots ? quiz.roots.join(' + ') : 'Unit '+quiz.unit} &middot; ${quiz.sections.reduce((s,sec)=>s+sec.questions.length,0)} questions</h3>
     ${quiz.sections.map((sec, si) => `
       <div class="quiz-section">
         <div class="quiz-section-label">${String.fromCharCode(65+si)}. ${sec.label}</div>
         ${sec.type === 'synonym' || sec.type === 'analogy' ? renderSynonymSection(sec, si) : ''}
-        ${sec.type === 'fill' ? renderFillSection(sec, si, quiz) : ''}
+        ${sec.type === 'fill' ? renderFillSection(sec, si) : ''}
       </div>
     `).join('')}`;
 
-  bindQuizEvents(quiz);
+  bindQuizEvents();
 }
 
 function renderSynonymSection(sec, si){
@@ -1456,14 +1463,16 @@ function renderFillSection(sec, si, quiz){
     <div style="margin-top:8px;font-size:10px;color:var(--warm-muted)"><strong>Word Bank:</strong> ${sec.wordBank.map(w => `${w.letter}. ${esc(w.word)}`).join(' &middot; ')}</div>`;
 }
 
-function bindQuizEvents(quiz){
+function bindQuizEvents(){
   // Synonym / Analogy: click to answer
   quizContent.querySelectorAll('.quiz-q-opts .quiz-opt:not([disabled])').forEach(opt => {
     opt.addEventListener('click', () => {
       const qDiv = opt.closest('.quiz-q');
       const si = parseInt(qDiv.dataset.si), qi = parseInt(qDiv.dataset.qi);
+      const quiz = getQuizData();
+      if(!quiz) return;
       const sec = quiz.sections[si];
-      if(!sec) return;
+      if(!sec || !sec.questions) return;
       const q = sec.questions[qi];
       const oi = parseInt(opt.dataset.oi);
       if(!quizState.sections[si].questions) quizState.sections[si].questions = [];
@@ -1474,7 +1483,7 @@ function bindQuizEvents(quiz){
       } else {
         quizState.sections[si].questions[qi] = {chosen: oi, done: false};
       }
-      renderQuiz(quiz, quizState.key);
+      renderQuiz();
     });
   });
 
@@ -1492,16 +1501,16 @@ function bindQuizEvents(quiz){
 
     submitBtn.addEventListener('click', () => {
       quizState._fillSubmitted = true;
-      // Check if all correct
-      const sec = quiz.sections[quiz.sections.length-1]; // fill is last section
+      const quiz = getQuizData();
+      const sec = quiz.sections[quiz.sections.length-1];
       const allCorrect = sec.questions.every((q,qi) =>
         (quizState._fillAnswers?.[qi]||'').toLowerCase() === q.ans.toLowerCase()
       );
       if(!allCorrect){
-        renderQuiz(quiz, quizState.key);
+        renderQuiz();
       } else {
         quizState._fillSubmitted = true;
-        renderQuiz(quiz, quizState.key);
+        renderQuiz();
       }
     });
   }
