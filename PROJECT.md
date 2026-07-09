@@ -2,7 +2,7 @@
 
 > 词缀词源笔记本 · 基于 *Merriam-Webster's Vocabulary Builder* 的学习工具
 >
-> 最后更新：2026-07-09
+> 最后更新：2026-07-09（添加字体规范 + 词汇详情面板要求）
 
 ---
 
@@ -48,11 +48,19 @@
 
 | 角色 | 字体 | 用途 |
 |------|------|------|
-| 标题（Shiny Gradient） | Playfair Display 900 | 页面标题 "Roots & Affixes" |
-| 卡片词根 | Playfair Display 900 | 每个卡片的词根名称 |
+| 标题（Shiny Gradient） | **Cochin** (macOS 系统字体) | 页面大标题 "Roots & Affixes" |
+| 副标题 | **Snell Roundhand** (macOS 系统字体) | 标题下方小字 |
+| 卡片词根 | **Big Caslon** (macOS 系统字体) | 卡片和 Modal 中的词根名称 |
 | 正文 / UI | Inter 400-700 | 搜索框、A-Z 按钮、含义、注释、页脚 |
 
-**Google Fonts 加载**：`Playfair Display:ital,wght@0,400;0,700;0,900;1,400;1,700` + `Inter:ital,opsz,wght@0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;0,14..32,800;1,14..32,400`
+**后备字体链**：
+- Cochin → Georgia → Times New Roman
+- Snell Roundhand → Apple Chancery → cursive
+- Big Caslon → Playfair Display → Georgia → serif
+
+**Google Fonts 加载**：`Inter:ital,opsz,wght@0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;0,14..32,800;1,14..32,400`
+
+> **注意**：Cochin、Snell Roundhand、Big Caslon 是 macOS 内置字体，不需要 CDN 加载。Windows/Linux 用户会看到后备字体。
 
 ### 2.3 Shiny Gradient Text（标题动画）
 
@@ -154,8 +162,31 @@
   examples: string[]; // 展示在卡片上的示例词（精选 3-6 个）
   words?: string[];   // 完整的关联词汇列表（从 EPUB 提取，用于词汇搜索反查）
   notes?: string;     // 词源注释，如 "Latin bene = well"
+  wordDetails?: {     // 每个词汇的完整释义（从 EPUB 提取，用于 Modal 点击查看）
+    [word: string]: {
+      pronunciation: string;  // 音标，如 "ben-uh-DIK-shun"
+      definition: string;     // 英文释义
+      example: string;        // 例句
+      usage: string;          // 用法与词源说明
+    }
+  }
 }
 ```
+
+### 4.2 词汇详情面板（Modal 内）
+
+**功能**：在 Modal 中点击任意 Example Word 或 More Word，弹出词汇详情面板。
+
+**交互**：
+- 点击词汇 → 该词汇高亮为绿色（`.ex-word.selected`）+ 详情面板滑出
+- 面板内容包括：音标、释义（Definition）、例句（Example）、用法与词源（Usage & Etymology）
+- 再次点击同一词汇 → 取消选中，面板关闭
+- 点击另一词汇 → 切换详情
+
+**数据来源**：`wordDetails` 字段，内容从 EPUB 电子书的对应章节提取。
+
+**实施要求**（每次添加新词根时强制执行）：
+> 每个新词根的所有关联词汇（`words` 和 `examples` 中的全部单词），必须从 EPUB 中提取完整的 `wordDetails`（发音、释义、例句、用法/词源），填入条目。没有例外。
 
 ### 4.2 数据文件
 
@@ -316,10 +347,10 @@ function bindMouseTracking(){
 1. 用户告知学习内容（如 "今天学了 Unit 1 的 BENE, AM, BELL"）
 2. Claude 查找 `vocab-map.json` → 获取每个词根的词汇列表
 3. Claude 解压 EPUB → 找到对应章节
-4. Claude 提取每个词汇的：单词、读音、释义、例句、词源注释
-5. Claude 整理成条目格式，编辑 `WORD_DATA` 数组
+4. Claude 提取每个词汇的：**发音、释义、例句、用法/词源说明**
+5. Claude 整理成条目格式（包含完整 `wordDetails`），编辑 `WORD_DATA` 数组
 6. Claude 通过 GitHub API 推送更新
-7. Claude 通知用户 "已添加 3 个词根（12 个词汇），刷新页面即可查看"
+7. Claude 通知用户 "已添加 N 个词根（含完整词汇释义），刷新页面即可查看"
 
 ### 用户搜索词汇
 
