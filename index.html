@@ -1303,7 +1303,7 @@ let quizState = {};
 function openQuiz(type){
   const data = type === 'quizzes' ? QUIZZES : REVIEW_QUIZZES;
   const title = type === 'quizzes' ? 'Quizzes' : 'Review Quizzes';
-  const keys = Object.keys(data);
+  const keys = Object.keys(data).sort((a,b)=>{const[x,y]=a.match(/\d+/g).map(Number);const[u,v]=b.match(/\d+/g).map(Number);return x-u||y-v;});
   quizContent.innerHTML = `<h2>${title}</h2><h3>${keys.length} available</h3><div class="quiz-grid">${keys.map(k => {
     const q = data[k];
     return `<div class="quiz-card-browse" data-quiz-key="${esc(k)}" data-type="${type}"><div class="q-name">${esc(k)}</div><div class="q-roots">${q.roots ? q.roots.join(' + ') : 'Unit '+q.unit} · ${q.sections.reduce((s,sec)=>s+sec.questions.length,0)} questions</div></div>`;
