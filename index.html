@@ -244,6 +244,102 @@ body::after{
   letter-spacing:0.04em;
 }
 .stat-chip strong{color:var(--warm);font-weight:700;}
+.stat-chip.quiz-btn{cursor:pointer;transition:all 0.2s ease;}
+.stat-chip.quiz-btn:hover{background:rgba(248,244,233,0.18);border-color:rgba(248,244,233,0.3);color:var(--warm);}
+
+/* ── Quiz overlay ── */
+.quiz-overlay{
+  position:fixed;inset:0;z-index:250;
+  background:rgba(0,40,50,0.6);
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  display:flex;align-items:center;justify-content:center;
+  padding:24px;
+  opacity:0;pointer-events:none;transition:opacity 0.3s ease;
+}
+.quiz-overlay.open{opacity:1;pointer-events:auto;}
+.quiz-panel{
+  position:relative;
+  background:rgba(248,244,233,0.10);
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border-radius:20px;padding:32px 28px 24px;
+  max-width:700px;width:100%;max-height:85vh;overflow-y:auto;
+  border:0.5px solid rgba(248,244,233,0.18);
+  box-shadow:0 8px 40px rgba(0,0,0,0.2),inset 0 0 0 1px rgba(255,255,255,0.06);
+  transform:translateY(8px) scale(0.97);
+  transition:transform 0.3s cubic-bezier(0.22,0.61,0.36,1);
+}
+.quiz-overlay.open .quiz-panel{transform:translateY(0) scale(1);}
+.quiz-panel h2{
+  font-family:'Cochin','Georgia',serif;font-size:20px;font-weight:700;
+  color:var(--warm);margin-bottom:5px;letter-spacing:0.02em;
+}
+.quiz-panel h3{
+  font-family:'Inter',sans-serif;font-size:13px;font-weight:700;
+  color:var(--warm-dim);margin-bottom:14px;letter-spacing:0.04em;
+  text-transform:uppercase;
+}
+.quiz-close{
+  position:absolute;top:12px;right:14px;z-index:10;
+  width:30px;height:30px;border-radius:50%;border:none;cursor:pointer;
+  background:rgba(248,244,233,0.10);backdrop-filter:blur(6px);
+  border:0.5px solid rgba(248,244,233,0.16);
+  display:flex;align-items:center;justify-content:center;transition:all 0.2s ease;
+}
+.quiz-close:hover{background:rgba(248,244,233,0.20);border-color:rgba(248,244,233,0.28);}
+.quiz-close::before,.quiz-close::after{content:'';position:absolute;width:11px;height:1.5px;background:var(--warm);border-radius:1px;}
+.quiz-close::before{transform:rotate(45deg);}.quiz-close::after{transform:rotate(-45deg);}
+
+/* ── Quiz grid (browsing) ── */
+.quiz-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;}
+.quiz-card-browse{
+  background:rgba(248,244,233,0.07);backdrop-filter:blur(10px);
+  border-radius:14px;padding:16px;cursor:pointer;text-align:center;
+  border:0.5px solid rgba(248,244,233,0.12);transition:all 0.2s ease;
+}
+.quiz-card-browse:hover{background:rgba(248,244,233,0.14);border-color:rgba(248,244,233,0.25);transform:translateY(-2px);}
+.quiz-card-browse .q-name{font-family:'Inter',sans-serif;font-size:13px;font-weight:700;color:var(--warm);margin-bottom:4px;}
+.quiz-card-browse .q-roots{font-size:11px;color:var(--warm-muted);font-style:italic;}
+
+/* ── Quiz question styles ── */
+.quiz-section{margin-bottom:22px;}
+.quiz-section-label{font-family:'Inter',sans-serif;font-size:12px;font-weight:700;color:var(--text-dim);margin-bottom:10px;}
+.quiz-q{margin-bottom:14px;padding:12px 14px;background:rgba(248,244,233,0.04);border-radius:12px;border:0.5px solid rgba(248,244,233,0.06);}
+.quiz-q-num{font-size:11px;font-weight:800;color:var(--warm-muted);margin-bottom:4px;}
+.quiz-q-word{font-family:'Georgia',serif;font-size:15px;font-weight:700;color:var(--warm);margin-bottom:8px;}
+.quiz-q-opts{display:flex;flex-wrap:wrap;gap:6px;}
+.quiz-opt{
+  font-family:'Inter',sans-serif;font-size:12px;font-weight:600;
+  padding:6px 14px;border-radius:14px;cursor:pointer;
+  background:rgba(248,244,233,0.06);
+  border:0.5px solid rgba(248,244,233,0.10);
+  color:var(--warm-dim);transition:all 0.2s ease;
+  user-select:none;
+}
+.quiz-opt:hover{background:rgba(248,244,233,0.14);border-color:rgba(248,244,233,0.2);}
+.quiz-opt.correct{background:rgba(78,205,196,0.2);border-color:rgba(78,205,196,0.4);color:#B8F0EC;}
+.quiz-opt.wrong{background:rgba(255,107,107,0.2);border-color:rgba(255,107,107,0.4);color:#FFB3B3;}
+.quiz-opt:disabled{pointer-events:none;opacity:0.7;}
+.quiz-feedback{font-size:10px;margin-top:6px;color:var(--warm-muted);}
+.quiz-feedback .cn{color:var(--warm-dim);font-style:italic;}
+
+/* ── Quiz fill-in ── */
+.quiz-fill-input{
+  font-family:'Inter',sans-serif;font-size:12px;padding:6px 10px;
+  background:rgba(248,244,233,0.06);border:0.5px solid rgba(248,244,233,0.12);
+  border-radius:8px;color:var(--warm);width:40px;text-align:center;outline:none;
+  text-transform:uppercase;
+}
+.quiz-fill-input:focus{border-color:rgba(248,244,233,0.3);}
+.quiz-fill-input.correct{border-color:rgba(78,205,196,0.5);color:#B8F0EC;}
+.quiz-fill-input.wrong{border-color:rgba(255,107,107,0.5);color:#FFB3B3;}
+
+.quiz-submit{
+  font-family:'Inter',sans-serif;font-size:12px;font-weight:700;
+  padding:8px 20px;border-radius:14px;cursor:pointer;
+  background:rgba(248,244,233,0.10);border:0.5px solid rgba(248,244,233,0.18);
+  color:var(--warm-dim);transition:all 0.2s ease;margin-top:10px;
+}
+.quiz-submit:hover{background:rgba(248,244,233,0.18);color:var(--warm);}
 
 /* ================================================================
    [SEARCH] — Liquid glass pill
@@ -691,6 +787,8 @@ html,body{scrollbar-width:thin;scrollbar-color:rgba(248,244,233,0.12) transparen
     <div class="stats-row">
       <span class="stat-chip">Total:&nbsp;<strong id="countNum">0</strong></span>
       <span class="stat-chip" id="letterChip" style="display:none">Letter:&nbsp;<strong id="letterLabel"></strong></span>
+      <span class="stat-chip quiz-btn" data-quiz="quizzes">Quizzes</span>
+      <span class="stat-chip quiz-btn" data-quiz="reviews">Review Quizzes</span>
     </div>
   </header>
 
@@ -744,6 +842,16 @@ html,body{scrollbar-width:thin;scrollbar-color:rgba(248,244,233,0.12) transparen
     <p>This notebook was built to accompany the study of <strong><em>Merriam-Webster's Vocabulary Builder</em></strong> (Second Edition). Its goal is to make the book's 249 word roots and 1,199 vocabulary words browsable, searchable, and deeply explorable.</p>
     <p>The design draws from the <strong>AndDream</strong> brand language: deep teal and warm white, liquid glass cards with live specular highlights, and macOS-inspired interface details. Every word detail &mdash; definition, example sentence, usage notes, and both US &amp; UK IPA pronunciations &mdash; is sourced from the book or verified online.</p>
     <p>Built by Andrew. Typography: Cochin, Snell Roundhand, Big Caslon, and Inter. Deployed on GitHub Pages. Continuously growing, one root at a time.</p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- QUIZ OVERLAY -->
+<!-- ══════════════════════════════════════════════════ -->
+<div class="quiz-overlay" id="quizOverlay">
+  <div class="quiz-panel" id="quizPanel">
+    <button class="quiz-close" id="quizClose" aria-label="Close"></button>
+    <div id="quizContent"></div>
   </div>
 </div>
 
@@ -1175,6 +1283,241 @@ document.querySelectorAll('.info-overlay').forEach(ov => {
 document.addEventListener('keydown', e => {
   if(e.key === 'Escape'){
     document.querySelectorAll('.info-overlay.open').forEach(ov => ov.classList.remove('open'));
+  }
+});
+
+/* ───────────────────────────────────────
+   [QUIZ DATA]
+   ─────────────────────────────────────── */
+const QUIZZES = {
+  "Quiz 1-1": {
+    unit: 1, roots: ["BENE","AM"],
+    sections: [{
+      type: "synonym", label: "Choose the closest synonym",
+      questions: [
+        {word:"beneficiary",opts:["benefit","prayer","recipient","contributor"],ans:2,cn:["利益","祷告","受益人","贡献者"]},
+        {word:"amorous",opts:["friendly","sympathetic","loving","kind"],ans:2,cn:["友好的","同情的","充满爱意的","善良的"]},
+        {word:"benediction",opts:["blessing","gift","saint","favor"],ans:0,cn:["祝福","礼物","圣人","恩惠"]},
+        {word:"amicable",opts:["difficult","friendly","curious","lazy"],ans:1,cn:["困难的","友好的","好奇的","懒惰的"]},
+        {word:"enamored",opts:["strengthened","engaged","fond","free"],ans:2,cn:["加强的","已订婚的","喜爱的","自由的"]},
+        {word:"benefactor",opts:["supporter","priest","donation","kindness"],ans:0,cn:["支持者","牧师","捐赠","善良"]},
+        {word:"paramour",opts:["lover","husband","heaven","affection"],ans:0,cn:["情人","丈夫","天堂","感情"]},
+        {word:"benevolence",opts:["value","kindness","luck","approval"],ans:1,cn:["价值","善良","运气","赞同"]}
+      ]
+    },{
+      type: "analogy", label: "Complete the analogy",
+      questions: [
+        {stem:"charming : enchanting",word:"amorous",opts:["sublime","pleasant","likeable","passionate"],ans:3,cn:["崇高的","愉快的","可爱的","热情的"]},
+        {stem:"greeting : farewell",word:"benediction",opts:["motto","speech","curse","saying"],ans:2,cn:["格言","演讲","诅咒","谚语"]},
+        {stem:"lender : borrower",word:"benefactor",opts:["giver","beneficiary","participant","partner"],ans:1,cn:["给予者","受益人","参与者","伙伴"]},
+        {stem:"gentle : tender",word:"enamored",opts:["lively","charmed","cozy","enraged"],ans:1,cn:["活泼的","着迷的","舒适的","暴怒的"]},
+        {stem:"liking : appreciation",word:"benevolence",opts:["opinion","sentimentality","interest","generosity"],ans:3,cn:["意见","多愁善感","兴趣","慷慨"]},
+        {stem:"frozen : boiling",word:"amicable",opts:["calm","comfortable","shy","unfriendly"],ans:3,cn:["平静的","舒适的","害羞的","不友好的"]},
+        {stem:"patient : doctor",word:"beneficiary",opts:["tycoon","investor","lover","benefactor"],ans:3,cn:["大亨","投资者","爱人","施助者"]},
+        {stem:"friend : companion",word:"paramour",opts:["lover","theater","mother","wife"],ans:0,cn:["情人","剧院","母亲","妻子"]}
+      ]
+    }]
+  }
+};
+
+const REVIEW_QUIZZES = {
+  "Review 1": {
+    unit: 1,
+    sections: [{
+      type: "fill", label: "Fill in each blank with the correct letter",
+      wordBank: [
+        {letter:"a",word:"bellicose",cn:"好战的"},
+        {letter:"b",word:"stentorian",cn:"声音洪亮的"},
+        {letter:"c",word:"pace",cn:"请…原谅不同的看法"},
+        {letter:"d",word:"sybaritic",cn:"奢侈享乐的"},
+        {letter:"e",word:"grave",cn:"严肃的"},
+        {letter:"f",word:"alleviate",cn:"减轻"},
+        {letter:"g",word:"belligerence",cn:"好斗性"},
+        {letter:"h",word:"benevolence",cn:"仁慈"},
+        {letter:"i",word:"incriminate",cn:"使负罪"},
+        {letter:"j",word:"gravitate",cn:"被吸引"},
+        {letter:"k",word:"hector",cn:"威吓"},
+        {letter:"l",word:"enamored",cn:"迷恋的"},
+        {letter:"m",word:"stoic",cn:"坚忍的"},
+        {letter:"n",word:"pacify",cn:"安抚"}
+      ],
+      questions: [
+        {text:"Her grandfather had a ___ manner, moved slowly, and never laughed.",ans:"e"},
+        {text:"The mood at the resort was ___, and the drinking and dancing continued long into the night.",ans:"d"},
+        {text:"To rattle the other team, they usually ___ them constantly.",ans:"k"},
+        {text:"The judge was known for issuing all his rulings in a ___ voice.",ans:"b"},
+        {text:"He wouldn't even have a place to live if it weren't for the ___ of his wealthy godfather.",ans:"h"},
+        {text:"Thoroughly ___ of the splendid Victorian house, they began to plan their move.",ans:"l"},
+        {text:"She attempted to ___ his anxiety by convincing him he wasn't to blame.",ans:"f"},
+        {text:"Whenever she entered a bar alone, the lonely men would always ___ toward her.",ans:"j"},
+        {text:"Their refusal to cease work on nuclear weapons was seen as a ___ act by the neighboring countries.",ans:"a"},
+        {text:"___ my many critics, I have never had reason to change my views on the subject.",ans:"c"},
+        {text:"Unable to calm the growing crowd, he finally ordered the police to ___ the area by force.",ans:"n"},
+        {text:"Whenever her boyfriend saw anyone looking at her, his ___ was alarming.",ans:"g"},
+        {text:"He bore all his financial losses with the same ___ calm.",ans:"m"},
+        {text:"Who would have guessed that it would take the killer's own daughter to ___ him.",ans:"i"}
+      ]
+    }]
+  }
+};
+
+/* ───────────────────────────────────────
+   [QUIZ LOGIC]
+   ─────────────────────────────────────── */
+const quizOverlay = document.getElementById('quizOverlay');
+const quizContent = document.getElementById('quizContent');
+const quizClose = document.getElementById('quizClose');
+let quizState = {};
+
+function openQuiz(type){
+  const data = type === 'quizzes' ? QUIZZES : REVIEW_QUIZZES;
+  const title = type === 'quizzes' ? 'Quizzes' : 'Review Quizzes';
+  const isReview = type === 'reviews';
+  const keys = Object.keys(data);
+
+  quizContent.innerHTML = `
+    <h2>${title}</h2>
+    <h3>${isReview ? 'By Unit' : 'Select a quiz'}</h3>
+    <div class="quiz-grid">
+      ${keys.map(k => {
+        const q = data[k];
+        return `<div class="quiz-card-browse" data-quiz-key="${k}" data-type="${type}">
+          <div class="q-name">${k}</div>
+          <div class="q-roots">${q.roots ? q.roots.join(' + ') : 'Unit '+q.unit} &middot; ${q.sections.reduce((s,sec)=>s+sec.questions.length,0)} questions</div>
+        </div>`;
+      }).join('')}
+    </div>`;
+
+  quizContent.querySelectorAll('.quiz-card-browse').forEach(card => {
+    card.addEventListener('click', () => startQuiz(card.dataset.quizKey, card.dataset.type));
+  });
+
+  quizOverlay.classList.add('open');
+}
+
+function startQuiz(key, type){
+  const data = type === 'quizzes' ? QUIZZES : REVIEW_QUIZZES;
+  const quiz = data[key];
+  if(!quiz) return;
+  quizState = { key, type, sections: quiz.sections.map(s => ({...s})) };
+
+  renderQuiz(quiz, key);
+}
+
+function renderQuiz(quiz, key){
+  quizContent.innerHTML = `
+    <h2>${key}</h2>
+    <h3>${quiz.roots ? quiz.roots.join(' + ') : 'Unit '+quiz.unit} &middot; ${quiz.sections.reduce((s,sec)=>s+sec.questions.length,0)} questions</h3>
+    ${quiz.sections.map((sec, si) => `
+      <div class="quiz-section">
+        <div class="quiz-section-label">${String.fromCharCode(65+si)}. ${sec.label}</div>
+        ${sec.type === 'synonym' || sec.type === 'analogy' ? renderSynonymSection(sec, si) : ''}
+        ${sec.type === 'fill' ? renderFillSection(sec, si, quiz) : ''}
+      </div>
+    `).join('')}`;
+
+  bindQuizEvents(quiz);
+}
+
+function renderSynonymSection(sec, si){
+  return sec.questions.map((q, qi) => {
+    const state = (quizState.sections[si]?.questions?.[qi]) || {};
+    const done = state.done;
+    return `<div class="quiz-q" data-si="${si}" data-qi="${qi}">
+      <div class="quiz-q-num">${qi+1}. ${q.stem ? q.stem+' :: '+q.word+' : ___' : q.word}</div>
+      <div class="quiz-q-opts">${q.opts.map((o,oi) => {
+        let cls = 'quiz-opt';
+        if(done && oi === q.ans) cls += ' correct';
+        if(state.chosen != null && oi === state.chosen && oi !== q.ans) cls += ' wrong';
+        const disabled = done ? ' disabled' : '';
+        return `<span class="${cls}" data-oi="${oi}"${disabled}>${String.fromCharCode(97+oi)}. ${esc(o)}</span>`;
+      }).join('')}</div>
+      ${done ? `<div class="quiz-feedback">${q.opts.map((o,oi) => `<span class="cn">${String.fromCharCode(97+oi)}. ${esc(o)} = ${esc(q.cn[oi])}</span><br>`).join('')}</div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+function renderFillSection(sec, si, quiz){
+  const hasSubmitted = quizState._fillSubmitted;
+  return sec.questions.map((q, qi) => {
+    const userVal = quizState._fillAnswers?.[qi] || '';
+    let inputCls = 'quiz-fill-input';
+    if(hasSubmitted){
+      inputCls += userVal.toLowerCase() === q.ans.toLowerCase() ? ' correct' : ' wrong';
+    }
+    return `<div class="quiz-q" data-si="${si}" data-qi="${qi}">
+      <div class="quiz-q-num">${qi+1}. ${esc(q.text.replace('___','_____'))}</div>
+      <input class="${inputCls}" value="${esc(userVal)}" maxlength="1" placeholder="?" data-fill-qi="${qi}" ${hasSubmitted ? 'disabled' : ''}>
+      ${hasSubmitted ? `<span style="font-size:10px;margin-left:8px;color:var(--warm-dim)">${esc(q.ans.toUpperCase())}. ${esc(sec.wordBank.find(w=>w.letter===q.ans)?.word||'')} = ${esc(sec.wordBank.find(w=>w.letter===q.ans)?.cn||'')}</span>` : ''}
+    </div>`;
+  }).join('') + `
+    <div style="margin-top:8px">${!hasSubmitted ? '<button class="quiz-submit" id="fillSubmit">Check All</button>' : ''}</div>
+    <div style="margin-top:8px;font-size:10px;color:var(--warm-muted)"><strong>Word Bank:</strong> ${sec.wordBank.map(w => `${w.letter}. ${esc(w.word)}`).join(' &middot; ')}</div>`;
+}
+
+function bindQuizEvents(quiz){
+  // Synonym / Analogy: click to answer
+  quizContent.querySelectorAll('.quiz-q-opts .quiz-opt:not([disabled])').forEach(opt => {
+    opt.addEventListener('click', () => {
+      const qDiv = opt.closest('.quiz-q');
+      const si = parseInt(qDiv.dataset.si), qi = parseInt(qDiv.dataset.qi);
+      const sec = quiz.sections[si];
+      if(!sec) return;
+      const q = sec.questions[qi];
+      const oi = parseInt(opt.dataset.oi);
+      if(!quizState.sections[si].questions) quizState.sections[si].questions = [];
+      if(!quizState.sections[si].questions[qi]) quizState.sections[si].questions[qi] = {};
+
+      if(oi === q.ans){
+        quizState.sections[si].questions[qi] = {chosen: oi, done: true};
+      } else {
+        quizState.sections[si].questions[qi] = {chosen: oi, done: false};
+      }
+      renderQuiz(quiz, quizState.key);
+    });
+  });
+
+  // Fill: submit button
+  const submitBtn = quizContent.querySelector('#fillSubmit');
+  if(submitBtn){
+    // Capture fill inputs
+    quizState._fillAnswers = quizState._fillAnswers || {};
+    quizContent.querySelectorAll('.quiz-fill-input').forEach(inp => {
+      const qi = parseInt(inp.dataset.fillQi);
+      inp.addEventListener('input', e => {
+        quizState._fillAnswers[qi] = e.target.value;
+      });
+    });
+
+    submitBtn.addEventListener('click', () => {
+      quizState._fillSubmitted = true;
+      // Check if all correct
+      const sec = quiz.sections[quiz.sections.length-1]; // fill is last section
+      const allCorrect = sec.questions.every((q,qi) =>
+        (quizState._fillAnswers?.[qi]||'').toLowerCase() === q.ans.toLowerCase()
+      );
+      if(!allCorrect){
+        renderQuiz(quiz, quizState.key);
+      } else {
+        quizState._fillSubmitted = true;
+        renderQuiz(quiz, quizState.key);
+      }
+    });
+  }
+}
+
+// Quiz overlay controls
+quizClose.addEventListener('click', () => quizOverlay.classList.remove('open'));
+quizOverlay.addEventListener('click', e => { if(e.target === quizOverlay) quizOverlay.classList.remove('open'); });
+
+// Quiz buttons in stats row
+document.querySelectorAll('.quiz-btn').forEach(btn => {
+  btn.addEventListener('click', () => openQuiz(btn.dataset.quiz));
+});
+
+document.addEventListener('keydown', e => {
+  if(e.key === 'Escape' && quizOverlay.classList.contains('open')){
+    quizOverlay.classList.remove('open');
   }
 });
 
