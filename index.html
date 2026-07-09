@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Roots &amp; Affixes — A Word-Builder Notebook</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📖</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,400;0,600;0,700;0,800;0,900;1,400;1,700&display=swap" rel="stylesheet">
+
+<style>
+/* ================================================================
+   [RESET]
+   ================================================================ */
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+
+/* ================================================================
+   [COLORS] — Deep Teal + Warm White
+   ================================================================ */
+:root{
+  --bg:        #00859F;
+  --bg-dark:   #006d82;
+  --bg-light:  #1a9db5;
+  --warm:      #F8F4E9;
+  --warm-dim:  #e0dcd0;
+  --warm-muted:#c4bfb2;
+  --text:      #F8F4E9;
+  --text-dim:  rgba(248,244,233,0.7);
+  --text-muted:rgba(248,244,233,0.45);
+
+  --glass-bg:      rgba(248,244,233,0.10);
+  --glass-bg-hover:rgba(248,244,233,0.16);
+  --glass-border:  rgba(248,244,233,0.18);
+  --glass-shine:   rgba(255,255,255,0.15);
+
+  --radius: 20px;
+  --radius-sm: 14px;
+}
+
+html{background:var(--bg);}
+
+body{
+  min-height:100vh;
+  font-family:'Nunito',-apple-system,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;
+  color:var(--text);
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+
+  background:
+    radial-gradient(ellipse 80% 60% at 20% 30%, rgba(255,255,255,0.06) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 50% at 75% 70%, rgba(0,0,0,0.08) 0%, transparent 60%),
+    linear-gradient(175deg, var(--bg) 0%, var(--bg-dark) 100%);
+  background-attachment:fixed;
+}
+
+/* ================================================================
+   [NOISE TEXTURE OVERLAY]
+   ================================================================ */
+body::after{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.025;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size:128px 128px;
+}
+
+/* ================================================================
+   [DECORATIVE ORBS] — Subtle depth behind glass
+   ================================================================ */
+.bg-orbs{
+  position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;
+}
+.orb{
+  position:absolute;border-radius:50%;filter:blur(100px);opacity:0.22;
+}
+.orb-1{
+  width:600px;height:600px;
+  background:radial-gradient(circle,rgba(255,255,255,0.5),transparent);
+  top:-20%;left:-15%;
+}
+.orb-2{
+  width:500px;height:500px;
+  background:radial-gradient(circle,rgba(248,244,233,0.4),transparent);
+  bottom:-15%;right:-10%;
+}
+.orb-3{
+  width:400px;height:400px;
+  background:radial-gradient(circle,rgba(0,0,0,0.3),transparent);
+  top:50%;left:50%;transform:translate(-50%,-50%);
+}
+
+/* ================================================================
+   [MAIN CONTAINER]
+   ================================================================ */
+.main{
+  position:relative;z-index:1;
+  max-width:1040px;margin:0 auto;padding:44px 24px 80px;
+}
+
+/* ================================================================
+   [HEADER]
+   ================================================================ */
+.header{
+  text-align:center;padding:40px 0 36px;
+}
+.header h1{
+  font-family:'Nunito',sans-serif;
+  font-size:clamp(28px,5vw,48px);font-weight:900;
+  letter-spacing:-0.02em;line-height:1.15;
+  color:var(--warm);
+}
+.header .subtitle{
+  font-size:clamp(13px,1.6vw,16px);color:var(--text-dim);
+  margin-top:8px;font-weight:600;letter-spacing:0.03em;
+}
+
+/* ================================================================
+   [STATS ROW]
+   ================================================================ */
+.stats-row{
+  display:flex;align-items:center;justify-content:center;gap:16px;
+  margin-top:18px;flex-wrap:wrap;
+}
+.stat-chip{
+  font-size:13px;font-weight:700;color:var(--text-dim);
+  background:var(--glass-bg);
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  padding:7px 18px;border-radius:20px;
+  border:0.5px solid var(--glass-border);
+  letter-spacing:0.03em;
+}
+.stat-chip strong{color:var(--warm);font-weight:900;}
+
+/* ================================================================
+   [SEARCH BAR] — Liquid glass pill
+   ================================================================ */
+.search-wrap{
+  display:flex;justify-content:center;margin-bottom:24px;
+}
+.search-glass{
+  width:100%;max-width:520px;position:relative;
+  background:var(--glass-bg);
+  backdrop-filter:blur(16px) saturate(1.2);
+  -webkit-backdrop-filter:blur(16px) saturate(1.2);
+  border-radius:40px;padding:3px;
+  border:0.5px solid var(--glass-border);
+  box-shadow:
+    0 2px 16px rgba(0,0,0,0.06),
+    inset 0 0 0 1px rgba(255,255,255,0.08);
+  transition:border-color 0.3s ease,box-shadow 0.3s ease;
+}
+.search-glass:focus-within{
+  border-color:rgba(248,244,233,0.35);
+  box-shadow:
+    0 4px 24px rgba(0,0,0,0.1),
+    inset 0 0 0 1px rgba(255,255,255,0.14),
+    0 0 0 4px rgba(248,244,233,0.06);
+}
+.search-glass input{
+  width:100%;border:none;outline:none;background:transparent;
+  padding:14px 48px 14px 22px;font-size:15px;font-family:inherit;font-weight:600;
+  color:var(--warm);
+}
+.search-glass input::placeholder{color:var(--text-muted);font-weight:500;}
+
+.search-icon-svg{
+  position:absolute;right:16px;top:50%;transform:translateY(-50%);
+  pointer-events:none;opacity:0.45;
+}
+.search-icon-svg svg{display:block;}
+
+/* ================================================================
+   [A-Z INDEX BAR]
+   ================================================================ */
+.az-bar-wrap{
+  display:flex;justify-content:center;margin-bottom:32px;
+}
+.az-bar{
+  display:flex;gap:4px;flex-wrap:wrap;justify-content:center;
+  max-width:680px;
+}
+.az-btn{
+  font-family:'Nunito',sans-serif;font-size:12px;font-weight:800;
+  width:32px;height:32px;border-radius:50%;border:none;cursor:pointer;
+  background:var(--glass-bg);
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  color:var(--text-dim);
+  border:0.5px solid var(--glass-border);
+  transition:all 0.2s ease;
+  display:flex;align-items:center;justify-content:center;
+  letter-spacing:0.02em;
+}
+.az-btn:hover{
+  background:var(--glass-bg-hover);
+  border-color:rgba(248,244,233,0.3);
+  color:var(--warm);
+  transform:translateY(-1px);
+}
+.az-btn.active{
+  background:rgba(248,244,233,0.25);
+  color:var(--warm);
+  border-color:rgba(248,244,233,0.45);
+  box-shadow:0 2px 12px rgba(0,0,0,0.1);
+}
+.az-btn.all-btn{
+  width:auto;padding:0 14px;border-radius:16px;font-size:11px;letter-spacing:0.06em;
+}
+.az-btn.empty-letter{
+  opacity:0.3;cursor:default;
+}
+.az-btn.empty-letter:hover{
+  background:var(--glass-bg);
+  border-color:var(--glass-border);
+  color:var(--text-dim);
+  transform:none;
+}
+
+/* ================================================================
+   [CARD GRID]
+   ================================================================ */
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
+  gap:20px;
+}
+
+/* ================================================================
+   [GLASS CARD]
+   ================================================================ */
+.glass-card{
+  position:relative;
+  background:var(--glass-bg);
+  backdrop-filter:blur(14px) saturate(1.15);
+  -webkit-backdrop-filter:blur(14px) saturate(1.15);
+  border-radius:var(--radius);
+  padding:26px 24px 22px;
+  border:0.5px solid var(--glass-border);
+  box-shadow:
+    0 2px 12px rgba(0,0,0,0.04),
+    inset 0 0 0 1px rgba(255,255,255,0.08);
+  transition:transform 0.3s ease,box-shadow 0.3s ease,border-color 0.3s ease;
+  overflow:hidden;
+  cursor:pointer;
+}
+.glass-card:hover{
+  transform:translateY(-3px);
+  box-shadow:
+    0 8px 28px rgba(0,0,0,0.1),
+    inset 0 0 0 1px rgba(255,255,255,0.14);
+  border-color:rgba(248,244,233,0.35);
+}
+
+/* ── Specular shine ── */
+.glass-card::before{
+  content:'';position:absolute;z-index:2;pointer-events:none;
+  inset:0;border-radius:var(--radius);
+  background:linear-gradient(
+    135deg,
+    rgba(255,255,255,0.18) 0%,
+    rgba(255,255,255,0.10) 22%,
+    transparent 48%,
+    transparent 68%,
+    rgba(0,0,0,0.03) 100%
+  );
+}
+
+/* ── Mouse highlight ── */
+.glass-card::after{
+  content:'';position:absolute;z-index:3;pointer-events:none;
+  inset:0;border-radius:var(--radius);
+  opacity:0;transition:opacity 0.3s ease;
+  background:radial-gradient(circle 200px at var(--mx,50%) var(--my,50%), rgba(255,255,255,0.22) 0%, transparent 100%);
+}
+.glass-card:hover::after{opacity:1;}
+
+.glass-card > *{position:relative;z-index:4;}
+
+/* ── Card typography ── */
+.card-root{
+  font-family:'Nunito',sans-serif;
+  font-size:clamp(22px,3vw,30px);font-weight:900;
+  letter-spacing:-0.01em;line-height:1.2;color:var(--warm);
+  margin-bottom:6px;word-break:break-all;
+}
+.card-meaning{
+  font-size:14px;font-weight:700;color:var(--text-dim);
+  margin-bottom:4px;
+}
+.card-notes{
+  font-size:12px;color:var(--text-muted);line-height:1.5;
+  margin-bottom:12px;font-style:italic;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;
+  overflow:hidden;
+}
+.card-examples{
+  display:flex;flex-wrap:wrap;gap:5px;
+}
+.card-examples .ex-word{
+  font-size:12px;font-weight:700;color:var(--text-dim);
+  background:rgba(248,244,233,0.08);
+  padding:4px 10px;border-radius:12px;
+  border:0.5px solid rgba(248,244,233,0.12);
+  transition:all 0.2s ease;
+}
+.card-examples .ex-word:hover{
+  background:rgba(248,244,233,0.18);
+  border-color:rgba(248,244,233,0.25);
+}
+
+/* ── "Click to expand" hint on hover ── */
+.card-expand-hint{
+  position:absolute;bottom:10px;right:14px;z-index:5;
+  font-size:11px;font-weight:700;color:var(--text-muted);
+  opacity:0;transition:opacity 0.25s ease;
+  letter-spacing:0.04em;
+}
+.glass-card:hover .card-expand-hint{opacity:0.7;}
+
+/* ================================================================
+   [EMPTY STATE]
+   ================================================================ */
+.empty-state{
+  grid-column:1/-1;text-align:center;padding:64px 20px;
+}
+.empty-state .empty-icon{
+  width:64px;height:64px;margin:0 auto 20px;opacity:0.35;
+  border-radius:50%;
+  background:var(--glass-bg);
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  border:0.5px solid var(--glass-border);
+  display:flex;align-items:center;justify-content:center;
+}
+.empty-state .empty-icon svg{opacity:0.6;}
+.empty-state .empty-title{
+  font-size:18px;font-weight:800;color:var(--text-dim);
+  margin-bottom:8px;
+}
+.empty-state .empty-desc{
+  font-size:14px;color:var(--text-muted);line-height:1.6;
+  max-width:360px;margin:0 auto;
+}
+
+/* ================================================================
+   [EXPANDED CARD MODAL]
+   ================================================================ */
+.modal-overlay{
+  position:fixed;inset:0;z-index:100;
+  background:rgba(0,50,60,0.55);
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  display:flex;align-items:center;justify-content:center;
+  padding:24px;
+  opacity:0;pointer-events:none;
+  transition:opacity 0.3s ease;
+}
+.modal-overlay.open{
+  opacity:1;pointer-events:auto;
+}
+
+.modal-card{
+  position:relative;
+  background:rgba(248,244,233,0.12);
+  backdrop-filter:blur(20px) saturate(1.2);
+  -webkit-backdrop-filter:blur(20px) saturate(1.2);
+  border-radius:24px;
+  padding:40px 36px 32px;
+  max-width:520px;width:100%;max-height:85vh;overflow-y:auto;
+  border:0.5px solid rgba(248,244,233,0.25);
+  box-shadow:
+    0 8px 40px rgba(0,0,0,0.15),
+    inset 0 0 0 1px rgba(255,255,255,0.10);
+  transform:translateY(12px) scale(0.96);
+  transition:transform 0.35s cubic-bezier(0.22,0.61,0.36,1);
+}
+.modal-overlay.open .modal-card{
+  transform:translateY(0) scale(1);
+}
+
+/* modal specular shine */
+.modal-card::before{
+  content:'';position:absolute;z-index:2;pointer-events:none;
+  inset:0;border-radius:24px;
+  background:linear-gradient(
+    135deg,
+    rgba(255,255,255,0.2) 0%,
+    rgba(255,255,255,0.10) 20%,
+    transparent 50%,
+    transparent 70%,
+    rgba(0,0,0,0.04) 100%
+  );
+}
+
+.modal-card > *{position:relative;z-index:4;}
+
+/* Close button — pure CSS, no emoji */
+.modal-close{
+  position:absolute;top:14px;right:16px;z-index:10;
+  width:36px;height:36px;border-radius:50%;border:none;cursor:pointer;
+  background:rgba(248,244,233,0.12);
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  border:0.5px solid rgba(248,244,233,0.2);
+  display:flex;align-items:center;justify-content:center;
+  transition:all 0.2s ease;
+}
+.modal-close:hover{
+  background:rgba(248,244,233,0.22);
+  border-color:rgba(248,244,233,0.35);
+}
+.modal-close::before,.modal-close::after{
+  content:'';position:absolute;
+  width:14px;height:1.5px;background:var(--warm);border-radius:1px;
+}
+.modal-close::before{transform:rotate(45deg);}
+.modal-close::after{transform:rotate(-45deg);}
+
+.modal-root{
+  font-family:'Nunito',sans-serif;
+  font-size:clamp(28px,5vw,42px);font-weight:900;
+  letter-spacing:-0.01em;line-height:1.1;color:var(--warm);
+  margin-bottom:8px;word-break:break-all;
+}
+.modal-meaning{
+  font-size:17px;font-weight:700;color:var(--text-dim);
+  margin-bottom:14px;
+}
+.modal-notes{
+  font-size:14px;color:var(--text-dim);line-height:1.7;
+  margin-bottom:20px;font-style:italic;
+  padding:16px 18px;
+  background:rgba(248,244,233,0.06);
+  border-radius:var(--radius-sm);
+  border:0.5px solid rgba(248,244,233,0.08);
+}
+.modal-section-label{
+  font-size:11px;font-weight:800;text-transform:uppercase;
+  letter-spacing:0.08em;color:var(--text-muted);margin-bottom:10px;
+}
+.modal-examples{
+  display:flex;flex-wrap:wrap;gap:8px;
+}
+.modal-examples .ex-word{
+  font-size:14px;font-weight:700;color:var(--text-dim);
+  background:rgba(248,244,233,0.10);
+  padding:7px 16px;border-radius:16px;
+  border:0.5px solid rgba(248,244,233,0.15);
+}
+.modal-letter{
+  display:inline-block;margin-top:20px;
+  font-size:11px;font-weight:800;letter-spacing:0.08em;
+  text-transform:uppercase;
+  color:var(--text-muted);
+  background:rgba(248,244,233,0.08);
+  padding:5px 12px;border-radius:12px;
+}
+
+/* ================================================================
+   [FOOTER]
+   ================================================================ */
+.footer{
+  text-align:center;padding:36px 20px;
+  position:relative;z-index:1;
+  font-size:12px;font-weight:600;color:var(--text-muted);
+  letter-spacing:0.04em;
+}
+.footer span{color:var(--text-dim);}
+
+/* ================================================================
+   [RESPONSIVE]
+   ================================================================ */
+@media(max-width:640px){
+  .grid{grid-template-columns:1fr;gap:14px;}
+  .main{padding:24px 16px 60px;}
+  .header{padding:28px 0 20px;}
+  .glass-card{padding:22px 20px 18px;}
+  .modal-card{padding:28px 22px 24px;}
+  .az-btn{width:28px;height:28px;font-size:11px;}
+  .az-bar{gap:3px;}
+}
+</style>
+</head>
+<body>
+
+<!-- ── Background orbs ── -->
+<div class="bg-orbs">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- MAIN CONTENT -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="main">
+
+  <header class="header">
+    <h1>Roots &amp; Affixes</h1>
+    <p class="subtitle">A Word-Builder Notebook &mdash; from Merriam-Webster Vocabulary Builder</p>
+    <div class="stats-row">
+      <span class="stat-chip">Total:&nbsp;<strong id="countNum">0</strong></span>
+      <span class="stat-chip" id="letterChip" style="display:none">Letter:&nbsp;<strong id="letterLabel"></strong></span>
+    </div>
+  </header>
+
+  <!-- Search -->
+  <div class="search-wrap">
+    <div class="search-glass">
+      <input type="text" id="searchInput" placeholder="Search roots, meanings, or example words&hellip;" autocomplete="off">
+      <span class="search-icon-svg">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(248,244,233,0.5)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      </span>
+    </div>
+  </div>
+
+  <!-- A-Z Index -->
+  <div class="az-bar-wrap">
+    <div class="az-bar" id="azBar">
+      <button class="az-btn all-btn active" data-letter="all">ALL</button>
+    </div>
+  </div>
+
+  <!-- Card Grid -->
+  <div class="grid" id="grid"></div>
+
+</div>
+
+<footer class="footer">
+  A word-builder notebook &mdash; one root at a time &middot; <span>AndDream</span>
+</footer>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- EXPANDED CARD MODAL -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal-card" id="modalCard">
+    <button class="modal-close" id="modalClose" aria-label="Close"></button>
+    <div id="modalContent"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- SCRIPTS -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<script>
+/* ──────────────────────────────────────────────
+   [DATA] — Word Roots & Affixes
+   Add entries as you learn them.
+   Each entry:
+     { root: "bene-", meaning: "well, good",
+       examples: ["benefit","benevolent"],
+       notes: "Latin bene = well" }
+   ────────────────────────────────────────────── */
+const WORD_DATA = [];
+
+/* ──────────────────────────────────────────────
+   [STATE]
+   ────────────────────────────────────────────── */
+let activeLetter = 'all';
+let searchQuery = '';
+
+/* ──────────────────────────────────────────────
+   [A-Z BAR BUILD]
+   ────────────────────────────────────────────── */
+const azBar = document.getElementById('azBar');
+const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+
+LETTERS.forEach(letter => {
+  const btn = document.createElement('button');
+  btn.className = 'az-btn';
+  btn.dataset.letter = letter;
+  btn.textContent = letter;
+  azBar.appendChild(btn);
+});
+
+function updateAZState(){
+  const azBtns = azBar.querySelectorAll('.az-btn:not(.all-btn)');
+  azBtns.forEach(btn => {
+    const letter = btn.dataset.letter;
+    const hasEntries = WORD_DATA.some(e =>
+      e.root.charAt(0).toUpperCase() === letter
+    );
+    if(hasEntries){
+      btn.classList.remove('empty-letter');
+    } else {
+      btn.classList.add('empty-letter');
+    }
+  });
+}
+
+/* ──────────────────────────────────────────────
+   [RENDER]
+   ────────────────────────────────────────────── */
+const grid = document.getElementById('grid');
+const countNum = document.getElementById('countNum');
+const letterChip = document.getElementById('letterChip');
+const letterLabel = document.getElementById('letterLabel');
+
+function getFilteredData(){
+  return WORD_DATA.filter(entry => {
+    // letter filter
+    if(activeLetter !== 'all' && entry.root.charAt(0).toUpperCase() !== activeLetter) return false;
+    // search filter
+    if(searchQuery){
+      const q = searchQuery.toLowerCase();
+      return (
+        entry.root.toLowerCase().includes(q) ||
+        entry.meaning.toLowerCase().includes(q) ||
+        entry.examples.some(ex => ex.toLowerCase().includes(q)) ||
+        (entry.notes && entry.notes.toLowerCase().includes(q))
+      );
+    }
+    return true;
+  });
+}
+
+function renderCards(){
+  const data = getFilteredData();
+  countNum.textContent = data.length;
+
+  if(activeLetter === 'all'){
+    letterChip.style.display = 'none';
+  } else {
+    letterChip.style.display = '';
+    letterLabel.textContent = activeLetter;
+  }
+
+  if(data.length === 0){
+    const isEntirelyEmpty = WORD_DATA.length === 0;
+    grid.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="rgba(248,244,233,0.5)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+          </svg>
+        </div>
+        <div class="empty-title">${isEntirelyEmpty ? 'No entries yet' : 'No matches found'}</div>
+        <div class="empty-desc">${isEntirelyEmpty ? 'Start adding word roots and affixes as you encounter them in your reading. Each entry will appear here as a glass card.' : 'Try a different letter or adjust your search.'}</div>
+      </div>`;
+    return;
+  }
+
+  grid.innerHTML = data.map((entry, idx) => `
+    <div class="glass-card" data-index="${idx}" data-root="${escapeHTML(entry.root)}" data-letter="${entry.root.charAt(0).toUpperCase()}">
+      <div class="card-root">${escapeHTML(entry.root)}</div>
+      <div class="card-meaning">${escapeHTML(entry.meaning)}</div>
+      ${entry.notes ? `<div class="card-notes">${escapeHTML(entry.notes)}</div>` : ''}
+      <div class="card-examples">
+        ${entry.examples.map(ex => `<span class="ex-word">${escapeHTML(ex)}</span>`).join('')}
+      </div>
+      <div class="card-expand-hint">click to expand</div>
+    </div>
+  `).join('');
+
+  bindMouseTracking();
+  bindCardClicks();
+}
+
+function escapeHTML(str){
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+/* ──────────────────────────────────────────────
+   [MOUSE HIGHLIGHT]
+   ────────────────────────────────────────────── */
+function bindMouseTracking(){
+  const cards = document.querySelectorAll('.glass-card');
+  cards.forEach(card => {
+    card.addEventListener('mousemove', e => {
+      const rect = card.getBoundingClientRect();
+      card.style.setProperty('--mx', `${((e.clientX - rect.left) / rect.width * 100).toFixed(1)}%`);
+      card.style.setProperty('--my', `${((e.clientY - rect.top) / rect.height * 100).toFixed(1)}%`);
+    });
+    card.addEventListener('mouseleave', () => {
+      card.style.setProperty('--mx', '50%');
+      card.style.setProperty('--my', '50%');
+    });
+  });
+}
+
+/* ──────────────────────────────────────────────
+   [CARD CLICK → EXPAND MODAL]
+   ────────────────────────────────────────────── */
+const modalOverlay = document.getElementById('modalOverlay');
+const modalContent = document.getElementById('modalContent');
+const modalClose = document.getElementById('modalClose');
+
+function bindCardClicks(){
+  const cards = document.querySelectorAll('.glass-card');
+  cards.forEach(card => {
+    card.addEventListener('click', () => {
+      const idx = parseInt(card.dataset.index);
+      const allData = getFilteredData();
+      const entry = allData[idx];
+      if(!entry) return;
+
+      modalContent.innerHTML = `
+        <div class="modal-root">${escapeHTML(entry.root)}</div>
+        <div class="modal-meaning">${escapeHTML(entry.meaning)}</div>
+        ${entry.notes ? `<div class="modal-notes">${escapeHTML(entry.notes)}</div>` : ''}
+        <div class="modal-section-label">Example Words</div>
+        <div class="modal-examples">
+          ${entry.examples.map(ex => `<span class="ex-word">${escapeHTML(ex)}</span>`).join('')}
+        </div>
+        <div class="modal-letter">Starts with &ldquo;${escapeHTML(entry.root.charAt(0).toUpperCase())}&rdquo;</div>
+      `;
+
+      modalOverlay.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    });
+  });
+}
+
+function closeModal(){
+  modalOverlay.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+modalClose.addEventListener('click', closeModal);
+modalOverlay.addEventListener('click', e => {
+  if(e.target === modalOverlay) closeModal();
+});
+document.addEventListener('keydown', e => {
+  if(e.key === 'Escape') closeModal();
+});
+
+/* ──────────────────────────────────────────────
+   [SEARCH]
+   ────────────────────────────────────────────── */
+const searchInput = document.getElementById('searchInput');
+searchInput.addEventListener('input', e => {
+  searchQuery = e.target.value.trim();
+  renderCards();
+});
+
+/* ──────────────────────────────────────────────
+   [A-Z FILTER]
+   ────────────────────────────────────────────── */
+azBar.addEventListener('click', e => {
+  const btn = e.target.closest('.az-btn');
+  if(!btn) return;
+
+  const allBtns = azBar.querySelectorAll('.az-btn');
+  allBtns.forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+
+  activeLetter = btn.dataset.letter;
+  renderCards();
+});
+
+/* ──────────────────────────────────────────────
+   [INIT]
+   ────────────────────────────────────────────── */
+updateAZState();
+renderCards();
+</script>
+
+</body>
+</html>
