@@ -1291,6 +1291,183 @@ document.addEventListener('keydown', e => {
 /* ───────────────────────────────────────
    [QUIZ DATA — loaded from quiz-data.js]
    ─────────────────────────────────────── */
+
+/* ───────────────────────────────────────
+   [QUIZ LOGIC]
+   ─────────────────────────────────────── */
+const quizOverlay = document.getElementById('quizOverlay');
+const quizContent = document.getElementById('quizContent');
+const quizClose = document.getElementById('quizClose');
+let quizState = {};
+
+function openQuiz(type){
+  const data = type === 'quizzes' ? QUIZZES : REVIEW_QUIZZES;
+  const title = type === 'quizzes' ? 'Quizzes' : 'Review Quizzes';
+  const keys = Object.keys(data);
+  quizContent.innerHTML = `<h2>${title}</h2><h3>${keys.length} available</h3><div class="quiz-grid">${keys.map(k => {
+    const q = data[k];
+    return `<div class="quiz-card-browse" data-quiz-key="${esc(k)}" data-type="${type}"><div class="q-name">${esc(k)}</div><div class="q-roots">${q.roots ? q.roots.join(' + ') : 'Unit '+q.unit} · ${q.sections.reduce((s,sec)=>s+sec.questions.length,0)} questions</div></div>`;
+  }).join('')}</div>`;
+  quizContent.querySelectorAll('.quiz-card-browse').forEach(card => {
+    card.addEventListener('click', () => startQuiz(card.dataset.quizKey, card.dataset.type));
+  });
+  quizOverlay.classList.add('open');
+}
+
+function getQuizData(){
+  if(!quizState.key) return null;
+  const src = quizState.type === 'quizzes' ? QUIZZES : REVIEW_QUIZZES;
+  return src[quizState.key] || null;
+}
+
+function startQuiz(key, type){
+  const data = type === 'quizzes' ? QUIZZES : REVIEW_QUIZZES;
+  const quiz = data[key];
+  if(!quiz) return;
+  quizState = { key, type, _answers: {}, _fillAnswers: {}, _fillSubmitted: false, _checkAllAnswers: {}, _checkAllSubmitted: false, _checkAllSI: -1 };
+  renderQuiz();
+}
+
+function renderQuiz(){
+  const quiz = getQuizData();
+  if(!quiz) return;
+  const key = quizState.key;
+  quizContent.innerHTML = `<h2>${esc(key)}</h2><h3>${quiz.roots ? quiz.roots.join(' + ') : 'Unit '+quiz.unit} · ${quiz.sections.reduce((s,sec)=>s+sec.questions.length,0)} questions</h3>${quiz.sections.map((sec, si) => `
+    <div class="quiz-section"><div class="quiz-section-label">${String.fromCharCode(65+si)}. ${esc(sec.label)}</div>
+    ${sec.type === 'synonym' || sec.type === 'analogy' || sec.type === 'indicate' ? renderSynonymSection(sec, si) : ''}
+    ${sec.type === 'match' ? renderCheckAllSection(sec, si) : ''}
+    ${sec.type === 'fill' ? renderFillSection(sec, si) : ''}
+    </div>`).join('')}`;
+  bindQuizEvents();
+}
+
+function renderSynonymSection(sec, si){
+  if(!sec || !sec.questions) return '';
+  const isIndicate = sec.type === 'indicate';
+  return sec.questions.map((q, qi) => {
+    const ansKey = `${si}-${qi}`;
+    const state = quizState._answers[ansKey] || {};
+    const done = state.done;
+    const opts = isIndicate ? ['same','different'] : q.opts;
+    return `<div class="quiz-q" data-si="${si}" data-qi="${qi}"><div class="quiz-q-num">${qi+1}. ${esc(q.stem ? q.stem+' :: '+q.word+' : ___' : q.word)}</div><div class="quiz-q-opts">${opts.map((o,oi) => {
+      const val = isIndicate ? o : oi;
+      const isCorrect = isIndicate ? (o === q.ans) : (oi === q.ans);
+      let cls = 'quiz-opt';
+      if(done && isCorrect) cls += ' correct';
+      if(state.chosen != null && val == state.chosen && !isCorrect) cls += ' wrong';
+      const label = isIndicate ? (o.charAt(0).toUpperCase()+o.slice(1)) : `${String.fromCharCode(97+oi)}. ${esc(o)}`;
+      return `<span class="${cls}" data-oi="${val}"${done?' disabled':''}>${label}</span>`;
+    }).join('')}</div>${done ? `<div class="quiz-feedback">${isIndicate ? `Answer: <strong>${esc(q.ans)}</strong> — ${esc(q.cn||'')}` : q.opts.map((o,oi) => `<span class="cn">${String.fromCharCode(97+oi)}. ${esc(o)} = ${esc(q.cn?.[oi]||'')}</span><br>`).join('')}</div>` : ''}</div>`;
+  }).join('');
+}
+
+function renderCheckAllSection(sec, si){
+  if(!sec || !sec.questions) return '';
+  const hasSubmitted = quizState._checkAllSubmitted && quizState._checkAllSI === si;
+  const answers = quizState._checkAllAnswers || {};
+  const questionsHTML = sec.questions.map((q, qi) => {
+    const userVal = answers[qi];
+    let cls = '';
+    if(hasSubmitted){ cls = userVal == q.ans ? ' correct' : ' wrong'; }
+    return `<div class="quiz-q" data-si="${si}" data-qi="${qi}"><div class="quiz-q-num">${qi+1}. ${esc(q.word || q.text)}</div><div class="quiz-q-opts">${q.opts.map((o, oi) => {
+      const isSelected = userVal == oi;
+      let oCls = 'quiz-opt' + (isSelected ? ' selected' : '') + (hasSubmitted && isSelected ? cls : '');
+      if(hasSubmitted && oi === q.ans) oCls += ' correct';
+      return `<span class="${oCls}" data-oi="${oi}" data-qi="${qi}"${hasSubmitted?' disabled':''}>${esc(o)}</span>`;
+    }).join('')}</div>${hasSubmitted ? `<div class="quiz-feedback" style="margin-top:4px">Ans: ${esc(q.opts[q.ans]||'')}</div>` : ''}</div>`;
+  }).join('');
+  return questionsHTML + `<div style="margin-top:10px">${!hasSubmitted ? '<button class="quiz-submit" id="checkAllBtn">Check All</button>' : ''}</div>`;
+}
+
+function renderFillSection(sec, si){
+  if(!sec || !sec.questions) return '';
+  const hasSubmitted = quizState._fillSubmitted;
+  const wordBank = sec.wordBank;
+  const wbHTML = wordBank ? `<div style="margin-bottom:14px;padding:10px 14px;background:rgba(248,244,233,0.04);border-radius:10px;border:0.5px solid rgba(248,244,233,0.06)"><div style="font-size:10px;font-weight:700;color:var(--warm-muted);margin-bottom:6px;letter-spacing:0.05em">WORD BANK</div><div style="font-size:10px;color:var(--warm-dim);line-height:1.6">${wordBank.map(w => `<strong style="color:var(--warm)">${esc(w.letter)}.</strong> ${esc(w.word)}`).join(' · ')}</div></div>` : '';
+  return wbHTML + sec.questions.map((q, qi) => {
+    const userVal = quizState._fillAnswers?.[qi] || '';
+    let inputCls = 'quiz-fill-input';
+    if(hasSubmitted){ inputCls += userVal.toLowerCase() === q.ans.toLowerCase() ? ' correct' : ' wrong'; }
+    return `<div class="quiz-q" data-si="${si}" data-qi="${qi}"><div class="quiz-q-num">${qi+1}. ${esc(q.text||q.x||'').replace('___','_____')}</div><input class="${inputCls}" value="${esc(userVal)}" maxlength="1" placeholder="?" data-fill-qi="${qi}" ${hasSubmitted?' disabled':''}>${hasSubmitted ? `<span style="font-size:10px;margin-left:8px;color:var(--warm-dim)">${esc((q.ans||'').toUpperCase())}. ${esc(wordBank?.find(w=>w.letter===q.ans)?.word||'')} = ${esc(wordBank?.find(w=>w.letter===q.ans)?.cn||'')}</span>` : ''}</div>`;
+  }).join('') + `<div style="margin-top:8px">${!hasSubmitted ? '<button class="quiz-submit" id="fillSubmit">Check All</button>' : ''}</div>`;
+}
+
+function bindQuizEvents(){
+  quizContent.querySelectorAll('.quiz-q[data-si] .quiz-opt').forEach(opt => {
+    if(opt.hasAttribute('disabled')) return;
+    const qDiv = opt.closest('.quiz-q');
+    if(!qDiv) return;
+    const si = parseInt(qDiv.dataset.si), qi = parseInt(qDiv.dataset.qi);
+    const quiz = getQuizData();
+    if(!quiz) return;
+    const sec = quiz.sections[si];
+    if(!sec || !sec.questions) return;
+
+    // Immediate feedback types
+    if(sec.type === 'synonym' || sec.type === 'analogy' || sec.type === 'indicate'){
+      opt.addEventListener('click', () => {
+        const q = sec.questions[qi];
+        const oi = opt.dataset.oi;
+        const ansKey = `${si}-${qi}`;
+        const chosenVal = sec.type === 'indicate' ? oi : parseInt(oi);
+        const correctVal = sec.type === 'indicate' ? q.ans : q.ans;
+        if(chosenVal == correctVal){
+          quizState._answers[ansKey] = {chosen: chosenVal, done: true};
+        } else {
+          quizState._answers[ansKey] = {chosen: chosenVal, done: false};
+        }
+        renderQuiz();
+      });
+    }
+
+    // Match type: select
+    if(sec.type === 'match'){
+      opt.addEventListener('click', () => {
+        const oi = parseInt(opt.dataset.oi);
+        quizState._checkAllAnswers = quizState._checkAllAnswers || {};
+        quizState._checkAllAnswers[qi] = oi;
+        const parent = opt.parentElement;
+        parent.querySelectorAll('.quiz-opt').forEach(o => o.classList.remove('selected'));
+        opt.classList.add('selected');
+      });
+    }
+  });
+
+  // Check All button
+  const checkAllBtn = quizContent.querySelector('#checkAllBtn');
+  if(checkAllBtn){
+    checkAllBtn.addEventListener('click', () => {
+      quizState._checkAllSI = parseInt(quizContent.querySelector('.quiz-q')?.dataset?.si || '0');
+      quizState._checkAllSubmitted = true;
+      renderQuiz();
+    });
+  }
+
+  // Fill inputs
+  quizContent.querySelectorAll('.quiz-fill-input').forEach(inp => {
+    const qi = parseInt(inp.dataset.fillQi);
+    inp.addEventListener('input', e => { quizState._fillAnswers = quizState._fillAnswers || {}; quizState._fillAnswers[qi] = e.target.value; });
+  });
+
+  // Fill submit
+  const fillSubmit = quizContent.querySelector('#fillSubmit');
+  if(fillSubmit){
+    fillSubmit.addEventListener('click', () => {
+      quizState._fillSubmitted = true;
+      renderQuiz();
+    });
+  }
+}
+
+quizClose.addEventListener('click', () => quizOverlay.classList.remove('open'));
+quizOverlay.addEventListener('click', e => { if(e.target === quizOverlay) quizOverlay.classList.remove('open'); });
+document.querySelectorAll('.quiz-btn').forEach(btn => {
+  btn.addEventListener('click', () => openQuiz(btn.dataset.quiz));
+});
+document.addEventListener('keydown', e => {
+  if(e.key === 'Escape' && quizOverlay.classList.contains('open')) quizOverlay.classList.remove('open');
+});
+
 /* ───────────────────────────────────────
    [NORMALIZE QUIZ DATA]
    Convert compact format to full format.
