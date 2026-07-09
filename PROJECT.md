@@ -2,7 +2,7 @@
 
 > 词缀词源笔记本 · 基于 *Merriam-Webster's Vocabulary Builder* 的学习工具
 >
-> 最后更新：2026-07-09（卡片构建流程 + macOS Menu Bar + 背景景深加深）
+> 最后更新：2026-07-10（Quiz 五种题型全覆盖 + 交互规范）
 
 ---
 
@@ -484,38 +484,54 @@ function bindMouseTracking(){
 ### 3.6 交互式 Quiz 系统
 
 - **入口**：标题下方统计栏的 "Quizzes" 和 "Review Quizzes" 按钮
-- **Quizzes**：以两个词根为一组的 quiz（如 Quiz 1-1: BENE + AM），点击进入答题界面
-- **Review Quizzes**：以 Unit 为单位的复习 quiz，交互方式相同
-- **题型与交互**：
+- **Quizzes**：以两个词根为一组的 quiz（如 Quiz 1-1: BENE + AM），点击卡片进入答题界面
+- **Review Quizzes**：以 Unit 为单位的综合复习，交互方式同 quiz
 
-| 题型 | 描述 | 交互逻辑 |
-|------|------|---------|
-| **Synonym** | 选择近义词 | 点击选项 → 对：绿底 + 显示所有选项中文意思；错：红底 + 显示该选项中文，可继续选直到对 |
-| **Analogy** | 完成类比 | 同上（类比格式：A:B :: C:___） |
-| **Fill** | 选字母填空 | 先填写所有空 → 点 "Check All" → 对：绿框；错：红框 + 显示正确答案和中文 |
-| **Match** | 左右配对 | （待实现） |
-| **Indicate** | 判断正误 | （待实现） |
+#### 五种题型（全覆盖）
 
-- **数据源**：EPUB 电子书中的 quiz 章节（每两个词根后一个 quiz）
-- **答案**：手动确定（EPUB 无独立答案密钥）
+| # | 题型 | 描述 | 反馈模式 | 交互逻辑 |
+|---|------|------|:--:|---------|
+| 1 | **Synonym** | 选择近义词 | 即时 | 点击选项 → 对：绿 `#4ECDC4` + 所有选项中文；错：红 `#FF6B6B` + 该选项中文，继续选 |
+| 2 | **Analogy** | 完成类比 (A:B::C:___) | 即时 | 同上 |
+| 3 | **Indicate** | 判断同/异 (Same/Different) | 即时 | 点击 → 对：绿 + 显示两词释义；错：红，继续选 |
+| 4 | **Match** | 定义匹配单词 | 统一提交 | 每题单击选中 → 全部选完后 "Check All" → 绿/红 + 正确答案 |
+| 5 | **Fill** | 选字母填空 | 统一提交 | 输入字母 → "Check All" → 绿框/红框 + 正确答案和中文；大小写不敏感 |
+
+#### 当前已录入
+
+| Quiz | 词根 | A 节 | B 节 |
+|------|------|------|------|
+| Quiz 1-1 | BENE + AM | Synonym (8q) | Analogy (8q) |
+| Quiz 1-2 | BELL + PAC | Match (8q) | Fill (8q) |
+| Quiz 1-3 | CRIM + PROB | Indicate (8q) | Match (8q) |
+| Review 1 | Unit 1 | Fill (14q) | — |
+
+#### 视觉规范
+
+- 正确：`background: rgba(78,205,196,0.2)` + `color: #B8F0EC`
+- 错误：`background: rgba(255,107,107,0.2)` + `color: #FFB3B3`
+- 选中（Match）：`background: rgba(248,244,233,0.14)` + 亮边框
+- Word Bank：Fill/Match 区顶部，独立卡片样式
+- A/B 标签：每节顶部 `A.` / `B.` 清晰标注
 
 ### 3.7 Quiz 数据格式
 
 ```javascript
-// QUIZZES 对象：key = quiz 名称
+// QUIZZES / REVIEW_QUIZZES 全局对象
 "Quiz 1-1": {
-  unit: 1, roots: ["BENE","AM"],
+  unit: 1,                      // 所属 Unit
+  roots: ["BENE","AM"],         // 涵盖的词根
   sections: [{
-    type: "synonym" | "analogy" | "fill",
-    label: "Section description",
+    type: "synonym",            // synonym | analogy | indicate | match | fill
+    label: "Choose the closest synonym",
     questions: [{
-      word: "vocabulary word",       // 目标词
-      opts: ["a","b","c","d"],       // 选项
-      ans: 2,                         // 正确答案索引
-      cn: ["中1","中2","中3","中4"]   // 各选项中文（对后显示）
+      word: "beneficiary",      // 题干词
+      opts: ["a","b","c","d"],  // 选项数组
+      ans: 2,                   // 正确答案索引（indicate 用 "same"/"different"）
+      cn: ["中1","中2","中3","中4"]  // 各选项中文释义（indicate 用一个字符串）
     }],
-    // fill 类额外字段：
-    wordBank: [{letter:"a", word:"...", cn:"中文"}]
+    // match / fill 额外字段：
+    wordBank: [{letter:"a", word:"antebellum", cn:"战前的"}, ...]
   }]
 }
 ```
