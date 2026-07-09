@@ -162,14 +162,25 @@
   examples: string[]; // 展示在卡片上的示例词（精选 3-6 个）
   words?: string[];   // 完整的关联词汇列表（从 EPUB 提取，用于词汇搜索反查）
   notes?: string;     // 词源注释，如 "Latin bene = well"
-  wordDetails?: {     // 每个词汇的完整释义（从 EPUB 提取，用于 Modal 点击查看）
+  wordDetails?: {     // 每个词汇的完整释义（从 EPUB 提取 + 在线查音标，用于 Modal 点击查看）
     [word: string]: {
-      pronunciation: string;  // 音标，如 "ben-uh-DIK-shun"
-      definition: string;     // 英文释义
-      example: string;        // 例句
-      usage: string;          // 用法与词源说明
+      pronunciationUS: string;  // 美式 IPA 音标，如 "/ˌbɛn.əˈdɪk.ʃən/"（上网查，Wiktionary/Cambridge）
+      pronunciationUK: string;  // 英式 IPA 音标，如 "/ˌbɛn.ɪˈdɪk.ʃən/"（上网查，Wiktionary/Cambridge）
+      definition: string;       // 英文释义
+      example: string;          // 例句
+      usage: string;            // 用法与词源说明
     }
   }
+```
+
+**音标获取规范**（强制执行）：
+> ⚠️ EPUB 电子书中的音标是图片格式（音节分隔符），无法直接提取文字。**每次添加新词根时，必须上网查询所有关联词汇的 IPA 音标**。
+>
+> - 来源：Wiktionary (`en.wiktionary.org/wiki/<word>`) 或 Cambridge Dictionary
+> - 必须同时提供 **US（美式）** 和 **UK（英式）** 两个版本
+> - 格式：`/ˈaɪ.pi.eɪ/`（双斜杠括起来的 IPA 符号）
+> - 如果英美发音相同，两个字段填写相同值
+> - `examples` 中的词也必须包含完整 `wordDetails`（含音标），不能遗漏
 }
 ```
 
@@ -347,10 +358,11 @@ function bindMouseTracking(){
 1. 用户告知学习内容（如 "今天学了 Unit 1 的 BENE, AM, BELL"）
 2. Claude 查找 `vocab-map.json` → 获取每个词根的词汇列表
 3. Claude 解压 EPUB → 找到对应章节
-4. Claude 提取每个词汇的：**发音、释义、例句、用法/词源说明**
-5. Claude 整理成条目格式（包含完整 `wordDetails`），编辑 `WORD_DATA` 数组
-6. Claude 通过 GitHub API 推送更新
-7. Claude 通知用户 "已添加 N 个词根（含完整词汇释义），刷新页面即可查看"
+4. Claude 提取每个词汇的：定义、例句、用法/词源说明（从 EPUB）
+5. Claude **上网查询每个词汇的 US + UK IPA 音标**（从 Wiktionary / Cambridge Dictionary）
+6. Claude 整理成条目格式（包含完整 `wordDetails`，`examples` 中的词也必须覆盖），编辑 `WORD_DATA` 数组
+7. Claude 通过 GitHub API 推送更新
+8. Claude 通知用户 "已添加 N 个词根（含完整词汇释义和 IPA 音标），刷新页面即可查看"
 
 ### 用户搜索词汇
 
