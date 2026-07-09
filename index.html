@@ -1405,7 +1405,7 @@ function startQuiz(key, type){
   const data = type === 'quizzes' ? QUIZZES : REVIEW_QUIZZES;
   const quiz = data[key];
   if(!quiz) return;
-  quizState = { key, type, sections: JSON.parse(JSON.stringify(quiz.sections)) };
+  quizState = { key, type, _answers: {}, _fillAnswers: {}, _fillSubmitted: false };
   renderQuiz();
 }
 
@@ -1429,7 +1429,8 @@ function renderQuiz(){
 function renderSynonymSection(sec, si){
   if(!sec || !sec.questions) return '';
   return sec.questions.map((q, qi) => {
-    const state = (quizState.sections[si]?.questions?.[qi]) || {};
+    const ansKey = `${si}-${qi}`;
+    const state = quizState._answers[ansKey] || {};
     const done = state.done;
     return `<div class="quiz-q" data-si="${si}" data-qi="${qi}">
       <div class="quiz-q-num">${qi+1}. ${q.stem ? q.stem+' :: '+q.word+' : ___' : q.word}</div>
@@ -1475,13 +1476,11 @@ function bindQuizEvents(){
       if(!sec || !sec.questions) return;
       const q = sec.questions[qi];
       const oi = parseInt(opt.dataset.oi);
-      if(!quizState.sections[si].questions) quizState.sections[si].questions = [];
-      if(!quizState.sections[si].questions[qi]) quizState.sections[si].questions[qi] = {};
-
+      const ansKey = `${si}-${qi}`;
       if(oi === q.ans){
-        quizState.sections[si].questions[qi] = {chosen: oi, done: true};
+        quizState._answers[ansKey] = {chosen: oi, done: true};
       } else {
-        quizState.sections[si].questions[qi] = {chosen: oi, done: false};
+        quizState._answers[ansKey] = {chosen: oi, done: false};
       }
       renderQuiz();
     });
