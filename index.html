@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Inter:ital,opsz,wght@0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;0,14..32,800;1,14..32,400&display=swap" rel="stylesheet">
+<script src="quiz-data.js"></script>
 
 <style>
 /* ================================================================
@@ -1288,145 +1289,11 @@ document.addEventListener('keydown', e => {
 });
 
 /* ───────────────────────────────────────
-   [QUIZ DATA]
+   [QUIZ DATA — loaded from quiz-data.js]
+   Compact format is normalized at init.
    ─────────────────────────────────────── */
-const QUIZZES = {
-  "Quiz 1-1": {
-    unit: 1, roots: ["BENE","AM"],
-    sections: [{
-      type: "synonym", label: "Choose the closest synonym",
-      questions: [
-        {word:"beneficiary",opts:["benefit","prayer","recipient","contributor"],ans:2,cn:["利益","祷告","受益人","贡献者"]},
-        {word:"amorous",opts:["friendly","sympathetic","loving","kind"],ans:2,cn:["友好的","同情的","充满爱意的","善良的"]},
-        {word:"benediction",opts:["blessing","gift","saint","favor"],ans:0,cn:["祝福","礼物","圣人","恩惠"]},
-        {word:"amicable",opts:["difficult","friendly","curious","lazy"],ans:1,cn:["困难的","友好的","好奇的","懒惰的"]},
-        {word:"enamored",opts:["strengthened","engaged","fond","free"],ans:2,cn:["加强的","已订婚的","喜爱的","自由的"]},
-        {word:"benefactor",opts:["supporter","priest","donation","kindness"],ans:0,cn:["支持者","牧师","捐赠","善良"]},
-        {word:"paramour",opts:["lover","husband","heaven","affection"],ans:0,cn:["情人","丈夫","天堂","感情"]},
-        {word:"benevolence",opts:["value","kindness","luck","approval"],ans:1,cn:["价值","善良","运气","赞同"]}
-      ]
-    },{
-      type: "analogy", label: "Complete the analogy",
-      questions: [
-        {stem:"charming : enchanting",word:"amorous",opts:["sublime","pleasant","likeable","passionate"],ans:3,cn:["崇高的","愉快的","可爱的","热情的"]},
-        {stem:"greeting : farewell",word:"benediction",opts:["motto","speech","curse","saying"],ans:2,cn:["格言","演讲","诅咒","谚语"]},
-        {stem:"lender : borrower",word:"benefactor",opts:["giver","beneficiary","participant","partner"],ans:1,cn:["给予者","受益人","参与者","伙伴"]},
-        {stem:"gentle : tender",word:"enamored",opts:["lively","charmed","cozy","enraged"],ans:1,cn:["活泼的","着迷的","舒适的","暴怒的"]},
-        {stem:"liking : appreciation",word:"benevolence",opts:["opinion","sentimentality","interest","generosity"],ans:3,cn:["意见","多愁善感","兴趣","慷慨"]},
-        {stem:"frozen : boiling",word:"amicable",opts:["calm","comfortable","shy","unfriendly"],ans:3,cn:["平静的","舒适的","害羞的","不友好的"]},
-        {stem:"patient : doctor",word:"beneficiary",opts:["tycoon","investor","lover","benefactor"],ans:3,cn:["大亨","投资者","爱人","施助者"]},
-        {stem:"friend : companion",word:"paramour",opts:["lover","theater","mother","wife"],ans:0,cn:["情人","剧院","母亲","妻子"]}
-      ]
-    }]
-  },
-  "Quiz 1-2": {
-    unit: 1, roots: ["BELL","PAC"],
-    sections: [{
-      type: "match", label: "Match the word on the left to the correct definition on the right",
-      questions: [
-        {word:"antebellum",opts:["quarrelsome","solemn agreement","to make peaceful","before the war","one who opposes war","aggressiveness","opposition to authority","contrary to the opinion of"],ans:3,cn:["好争吵的","庄严的协议","使平静","战前的","反战者","侵略性","对权威的反抗","与…意见不同"]},
-        {word:"pace",opts:["quarrelsome","solemn agreement","to make peaceful","before the war","one who opposes war","aggressiveness","opposition to authority","contrary to the opinion of"],ans:7,cn:["好争吵的","庄严的协议","使平静","战前的","反战者","侵略性","对权威的反抗","与…意见不同"]},
-        {word:"rebellion",opts:["quarrelsome","solemn agreement","to make peaceful","before the war","one who opposes war","aggressiveness","opposition to authority","contrary to the opinion of"],ans:6,cn:["好争吵的","庄严的协议","使平静","战前的","反战者","侵略性","对权威的反抗","与…意见不同"]},
-        {word:"pacify",opts:["quarrelsome","solemn agreement","to make peaceful","before the war","one who opposes war","aggressiveness","opposition to authority","contrary to the opinion of"],ans:2,cn:["好争吵的","庄严的协议","使平静","战前的","反战者","侵略性","对权威的反抗","与…意见不同"]},
-        {word:"pacifist",opts:["quarrelsome","solemn agreement","to make peaceful","before the war","one who opposes war","aggressiveness","opposition to authority","contrary to the opinion of"],ans:4,cn:["好争吵的","庄严的协议","使平静","战前的","反战者","侵略性","对权威的反抗","与…意见不同"]},
-        {word:"belligerence",opts:["quarrelsome","solemn agreement","to make peaceful","before the war","one who opposes war","aggressiveness","opposition to authority","contrary to the opinion of"],ans:5,cn:["好争吵的","庄严的协议","使平静","战前的","反战者","侵略性","对权威的反抗","与…意见不同"]},
-        {word:"pact",opts:["quarrelsome","solemn agreement","to make peaceful","before the war","one who opposes war","aggressiveness","opposition to authority","contrary to the opinion of"],ans:1,cn:["好争吵的","庄严的协议","使平静","战前的","反战者","侵略性","对权威的反抗","与…意见不同"]},
-        {word:"bellicose",opts:["quarrelsome","solemn agreement","to make peaceful","before the war","one who opposes war","aggressiveness","opposition to authority","contrary to the opinion of"],ans:0,cn:["好争吵的","庄严的协议","使平静","战前的","反战者","侵略性","对权威的反抗","与…意见不同"]}
-      ]
-    },{
-      type: "fill", label: "Fill in each blank with the correct letter",
-      wordBank: [
-        {letter:"a",word:"antebellum",cn:"战前的"},
-        {letter:"b",word:"pacifist",cn:"和平主义者"},
-        {letter:"c",word:"pact",cn:"条约"},
-        {letter:"d",word:"pace",cn:"请…原谅不同的看法"},
-        {letter:"e",word:"rebellion",cn:"叛乱"},
-        {letter:"f",word:"bellicose",cn:"好战的"},
-        {letter:"g",word:"pacify",cn:"安抚"},
-        {letter:"h",word:"belligerence",cn:"好斗性"}
-      ],
-      questions: [
-        {text:"The native ___ began at midnight, when a gang of youths massacred the Newton family and set the house afire.",ans:"e"},
-        {text:"The grand ___ mansion has hardly been altered since it was built in 1841.",ans:"a"},
-        {text:"The Senate Republicans, outraged by their treatment, were in a ___ mood.",ans:"f"},
-        {text:"___ some of the younger scholars, no good evidence has been found that Japan was involved in the incident.",ans:"d"},
-        {text:"The cease-fire ___ that had been reached with such effort was shattered by the news of the slaughter.",ans:"c"},
-        {text:"Their relations during the divorce proceedings had been mostly friendly, so his ___ in the judge's chambers surprised her.",ans:"h"},
-        {text:"The world watched in amazement as the gentle ___ Gandhi won India its independence with almost no bloodshed.",ans:"b"},
-        {text:"Her soft lullabies could always ___ the unhappy infant.",ans:"g"}
-      ]
-    }]
-  },
-  "Quiz 1-3": {
-    unit: 1, roots: ["CRIM","PROB"],
-    sections: [{
-      type: "indicate", label: "Indicate whether the following pairs have the same or different meanings",
-      questions: [
-        {word:"decriminalize / tolerate",ans:"same",cn:"decriminalize = 合法化, tolerate = 容忍"},
-        {word:"probity / fraud",ans:"different",cn:"probity = 正直, fraud = 欺诈"},
-        {word:"criminology / murder",ans:"different",cn:"criminology = 犯罪学, murder = 谋杀"},
-        {word:"incriminate / acquit",ans:"different",cn:"incriminate = 使负罪, acquit = 宣判无罪"},
-        {word:"probate / trial",ans:"different",cn:"probate = 遗嘱认证, trial = 审判"},
-        {word:"recrimination / faultfinding",ans:"same",cn:"recrimination = 反责, faultfinding = 挑剔"},
-        {word:"reprobate / scoundrel",ans:"same",cn:"reprobate = 恶棍, scoundrel = 无赖"},
-        {word:"approbation / criticism",ans:"different",cn:"approbation = 赞许, criticism = 批评"}
-      ]
-    },{
-      type: "match", label: "Match the definition on the left to the correct word on the right",
-      questions: [
-        {word:"utter honesty",opts:["approbation","reprobate","recrimination","criminology","probity","probate","decriminalize","incriminate"],ans:4,cn:["赞许","恶棍","反责","犯罪学","正直","遗嘱认证","合法化","使负罪"]},
-        {word:"approval",opts:["approbation","reprobate","recrimination","criminology","probity","probate","decriminalize","incriminate"],ans:0,cn:["赞许","恶棍","反责","犯罪学","正直","遗嘱认证","合法化","使负罪"]},
-        {word:"rascal",opts:["approbation","reprobate","recrimination","criminology","probity","probate","decriminalize","incriminate"],ans:1,cn:["赞许","恶棍","反责","犯罪学","正直","遗嘱认证","合法化","使负罪"]},
-        {word:"legal process for wills",opts:["approbation","reprobate","recrimination","criminology","probity","probate","decriminalize","incriminate"],ans:5,cn:["赞许","恶棍","反责","犯罪学","正直","遗嘱认证","合法化","使负罪"]},
-        {word:"study of illegal behavior",opts:["approbation","reprobate","recrimination","criminology","probity","probate","decriminalize","incriminate"],ans:3,cn:["赞许","恶棍","反责","犯罪学","正直","遗嘱认证","合法化","使负罪"]},
-        {word:"accuse",opts:["approbation","reprobate","recrimination","criminology","probity","probate","decriminalize","incriminate"],ans:7,cn:["赞许","恶棍","反责","犯罪学","正直","遗嘱认证","合法化","使负罪"]},
-        {word:"reduce penalty for",opts:["approbation","reprobate","recrimination","criminology","probity","probate","decriminalize","incriminate"],ans:6,cn:["赞许","恶棍","反责","犯罪学","正直","遗嘱认证","合法化","使负罪"]},
-        {word:"counterattack",opts:["approbation","reprobate","recrimination","criminology","probity","probate","decriminalize","incriminate"],ans:2,cn:["赞许","恶棍","反责","犯罪学","正直","遗嘱认证","合法化","使负罪"]}
-      ]
-    }]
-  }
-};
-
-const REVIEW_QUIZZES = {
-  "Review 1": {
-    unit: 1,
-    sections: [{
-      type: "fill", label: "Fill in each blank with the correct letter",
-      wordBank: [
-        {letter:"a",word:"bellicose",cn:"好战的"},
-        {letter:"b",word:"stentorian",cn:"声音洪亮的"},
-        {letter:"c",word:"pace",cn:"请…原谅不同的看法"},
-        {letter:"d",word:"sybaritic",cn:"奢侈享乐的"},
-        {letter:"e",word:"grave",cn:"严肃的"},
-        {letter:"f",word:"alleviate",cn:"减轻"},
-        {letter:"g",word:"belligerence",cn:"好斗性"},
-        {letter:"h",word:"benevolence",cn:"仁慈"},
-        {letter:"i",word:"incriminate",cn:"使负罪"},
-        {letter:"j",word:"gravitate",cn:"被吸引"},
-        {letter:"k",word:"hector",cn:"威吓"},
-        {letter:"l",word:"enamored",cn:"迷恋的"},
-        {letter:"m",word:"stoic",cn:"坚忍的"},
-        {letter:"n",word:"pacify",cn:"安抚"}
-      ],
-      questions: [
-        {text:"Her grandfather had a ___ manner, moved slowly, and never laughed.",ans:"e"},
-        {text:"The mood at the resort was ___, and the drinking and dancing continued long into the night.",ans:"d"},
-        {text:"To rattle the other team, they usually ___ them constantly.",ans:"k"},
-        {text:"The judge was known for issuing all his rulings in a ___ voice.",ans:"b"},
-        {text:"He wouldn't even have a place to live if it weren't for the ___ of his wealthy godfather.",ans:"h"},
-        {text:"Thoroughly ___ of the splendid Victorian house, they began to plan their move.",ans:"l"},
-        {text:"She attempted to ___ his anxiety by convincing him he wasn't to blame.",ans:"f"},
-        {text:"Whenever she entered a bar alone, the lonely men would always ___ toward her.",ans:"j"},
-        {text:"Their refusal to cease work on nuclear weapons was seen as a ___ act by the neighboring countries.",ans:"a"},
-        {text:"___ my many critics, I have never had reason to change my views on the subject.",ans:"c"},
-        {text:"Unable to calm the growing crowd, he finally ordered the police to ___ the area by force.",ans:"n"},
-        {text:"Whenever her boyfriend saw anyone looking at her, his ___ was alarming.",ans:"g"},
-        {text:"He bore all his financial losses with the same ___ calm.",ans:"m"},
-        {text:"Who would have guessed that it would take the killer's own daughter to ___ him.",ans:"i"}
-      ]
-    }]
-  }
-};
+let QUIZZES = {};
+let REVIEW_QUIZZES = {};
 
 /* ───────────────────────────────────────
    [QUIZ LOGIC]
@@ -1672,6 +1539,30 @@ document.addEventListener('keydown', e => {
     quizOverlay.classList.remove('open');
   }
 });
+
+/* ───────────────────────────────────────
+   [NORMALIZE QUIZ DATA]
+   Convert compact format to full format.
+   ─────────────────────────────────────── */
+function normalizeQuiz(obj){
+  for(const [k, v] of Object.entries(obj)){
+    v.unit = v.u; v.roots = v.r; delete v.u; delete v.r;
+    v.sections = (v.s || []).map(sec => {
+      const s = { type: sec.t, label: sec.l, questions: (sec.q || []).map(qq => {
+        const q = {};
+        if(qq.w !== undefined) q.word = qq.w;
+        if(qq.o !== undefined) q.opts = qq.o;
+        if(qq.a !== undefined) q.ans = qq.a;
+        if(qq.x !== undefined) q.text = qq.x;
+        return q;
+      })};
+      return s;
+    });
+    delete v.s;
+  }
+}
+normalizeQuiz(QUIZZES);
+normalizeQuiz(REVIEW_QUIZZES);
 
 /* ───────────────────────────────────────
    [INIT]
