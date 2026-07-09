@@ -1317,6 +1317,44 @@ const QUIZZES = {
         {stem:"friend : companion",word:"paramour",opts:["lover","theater","mother","wife"],ans:0,cn:["情人","剧院","母亲","妻子"]}
       ]
     }]
+  },
+  "Quiz 1-2": {
+    unit: 1, roots: ["BELL","PAC"],
+    sections: [{
+      type: "match", label: "Match the word on the left to the correct definition on the right",
+      questions: [
+        {word:"antebellum",opts:["quarrelsome","solemn agreement","to make peaceful","before the war","one who opposes war","aggressiveness","opposition to authority","contrary to the opinion of"],ans:3,cn:["好争吵的","庄严的协议","使平静","战前的","反战者","侵略性","对权威的反抗","与…意见不同"]},
+        {word:"pace",opts:["quarrelsome","solemn agreement","to make peaceful","before the war","one who opposes war","aggressiveness","opposition to authority","contrary to the opinion of"],ans:7,cn:["好争吵的","庄严的协议","使平静","战前的","反战者","侵略性","对权威的反抗","与…意见不同"]},
+        {word:"rebellion",opts:["quarrelsome","solemn agreement","to make peaceful","before the war","one who opposes war","aggressiveness","opposition to authority","contrary to the opinion of"],ans:6,cn:["好争吵的","庄严的协议","使平静","战前的","反战者","侵略性","对权威的反抗","与…意见不同"]},
+        {word:"pacify",opts:["quarrelsome","solemn agreement","to make peaceful","before the war","one who opposes war","aggressiveness","opposition to authority","contrary to the opinion of"],ans:2,cn:["好争吵的","庄严的协议","使平静","战前的","反战者","侵略性","对权威的反抗","与…意见不同"]},
+        {word:"pacifist",opts:["quarrelsome","solemn agreement","to make peaceful","before the war","one who opposes war","aggressiveness","opposition to authority","contrary to the opinion of"],ans:4,cn:["好争吵的","庄严的协议","使平静","战前的","反战者","侵略性","对权威的反抗","与…意见不同"]},
+        {word:"belligerence",opts:["quarrelsome","solemn agreement","to make peaceful","before the war","one who opposes war","aggressiveness","opposition to authority","contrary to the opinion of"],ans:5,cn:["好争吵的","庄严的协议","使平静","战前的","反战者","侵略性","对权威的反抗","与…意见不同"]},
+        {word:"pact",opts:["quarrelsome","solemn agreement","to make peaceful","before the war","one who opposes war","aggressiveness","opposition to authority","contrary to the opinion of"],ans:1,cn:["好争吵的","庄严的协议","使平静","战前的","反战者","侵略性","对权威的反抗","与…意见不同"]},
+        {word:"bellicose",opts:["quarrelsome","solemn agreement","to make peaceful","before the war","one who opposes war","aggressiveness","opposition to authority","contrary to the opinion of"],ans:0,cn:["好争吵的","庄严的协议","使平静","战前的","反战者","侵略性","对权威的反抗","与…意见不同"]}
+      ]
+    },{
+      type: "fill", label: "Fill in each blank with the correct letter",
+      wordBank: [
+        {letter:"a",word:"antebellum",cn:"战前的"},
+        {letter:"b",word:"pacifist",cn:"和平主义者"},
+        {letter:"c",word:"pact",cn:"条约"},
+        {letter:"d",word:"pace",cn:"请…原谅不同的看法"},
+        {letter:"e",word:"rebellion",cn:"叛乱"},
+        {letter:"f",word:"bellicose",cn:"好战的"},
+        {letter:"g",word:"pacify",cn:"安抚"},
+        {letter:"h",word:"belligerence",cn:"好斗性"}
+      ],
+      questions: [
+        {text:"The native ___ began at midnight, when a gang of youths massacred the Newton family and set the house afire.",ans:"e"},
+        {text:"The grand ___ mansion has hardly been altered since it was built in 1841.",ans:"a"},
+        {text:"The Senate Republicans, outraged by their treatment, were in a ___ mood.",ans:"f"},
+        {text:"___ some of the younger scholars, no good evidence has been found that Japan was involved in the incident.",ans:"d"},
+        {text:"The cease-fire ___ that had been reached with such effort was shattered by the news of the slaughter.",ans:"c"},
+        {text:"Their relations during the divorce proceedings had been mostly friendly, so his ___ in the judge's chambers surprised her.",ans:"h"},
+        {text:"The world watched in amazement as the gentle ___ Gandhi won India its independence with almost no bloodshed.",ans:"b"},
+        {text:"Her soft lullabies could always ___ the unhappy infant.",ans:"g"}
+      ]
+    }]
   }
 };
 
@@ -1418,7 +1456,7 @@ function renderQuiz(){
     ${quiz.sections.map((sec, si) => `
       <div class="quiz-section">
         <div class="quiz-section-label">${String.fromCharCode(65+si)}. ${sec.label}</div>
-        ${sec.type === 'synonym' || sec.type === 'analogy' ? renderSynonymSection(sec, si) : ''}
+        ${sec.type === 'synonym' || sec.type === 'analogy' || sec.type === 'match' ? renderSynonymSection(sec, si) : ''}
         ${sec.type === 'fill' ? renderFillSection(sec, si) : ''}
       </div>
     `).join('')}`;
@@ -1446,9 +1484,14 @@ function renderSynonymSection(sec, si){
   }).join('');
 }
 
-function renderFillSection(sec, si, quiz){
+function renderFillSection(sec, si){
   const hasSubmitted = quizState._fillSubmitted;
-  return sec.questions.map((q, qi) => {
+  return `
+    <div style="margin-bottom:14px;padding:10px 14px;background:rgba(248,244,233,0.04);border-radius:10px;border:0.5px solid rgba(248,244,233,0.06)">
+      <div style="font-size:10px;font-weight:700;color:var(--warm-muted);margin-bottom:6px;letter-spacing:0.05em">WORD BANK</div>
+      <div style="font-size:10px;color:var(--warm-dim);line-height:1.6">${sec.wordBank.map(w => `<strong style="color:var(--warm)">${w.letter}.</strong> ${esc(w.word)}`).join(' &middot; ')}</div>
+    </div>
+    ${sec.questions.map((q, qi) => {
     const userVal = quizState._fillAnswers?.[qi] || '';
     let inputCls = 'quiz-fill-input';
     if(hasSubmitted){
@@ -1459,9 +1502,8 @@ function renderFillSection(sec, si, quiz){
       <input class="${inputCls}" value="${esc(userVal)}" maxlength="1" placeholder="?" data-fill-qi="${qi}" ${hasSubmitted ? 'disabled' : ''}>
       ${hasSubmitted ? `<span style="font-size:10px;margin-left:8px;color:var(--warm-dim)">${esc(q.ans.toUpperCase())}. ${esc(sec.wordBank.find(w=>w.letter===q.ans)?.word||'')} = ${esc(sec.wordBank.find(w=>w.letter===q.ans)?.cn||'')}</span>` : ''}
     </div>`;
-  }).join('') + `
-    <div style="margin-top:8px">${!hasSubmitted ? '<button class="quiz-submit" id="fillSubmit">Check All</button>' : ''}</div>
-    <div style="margin-top:8px;font-size:10px;color:var(--warm-muted)"><strong>Word Bank:</strong> ${sec.wordBank.map(w => `${w.letter}. ${esc(w.word)}`).join(' &middot; ')}</div>`;
+  }).join('')}
+    <div style="margin-top:8px">${!hasSubmitted ? '<button class="quiz-submit" id="fillSubmit">Check All</button>' : ''}</div>`;
 }
 
 function bindQuizEvents(){
