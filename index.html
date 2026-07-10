@@ -746,6 +746,8 @@ html,body{scrollbar-width:thin;scrollbar-color:rgba(248,244,233,0.12) transparen
   letter-spacing:0.05em;
 }
 .footer span{color:var(--warm-dim);}
+.footer-link{cursor:pointer;transition:color 0.2s ease;}
+.footer-link:hover{color:var(--warm);}
 
 /* ================================================================
    [RESPONSIVE]
@@ -819,7 +821,7 @@ html,body{scrollbar-width:thin;scrollbar-color:rgba(248,244,233,0.12) transparen
 </div>
 
 <footer class="footer">
-  A word-builder notebook &mdash; one root at a time &middot; <span>AndDream</span>
+  A word-builder notebook &mdash; one root at a time &middot; <span>AndDream</span> &middot; <span class="footer-link" data-info="terms">Terms</span>
 </footer>
 
 <!-- ══════════════════════════════════════════════════ -->
@@ -829,10 +831,12 @@ html,body{scrollbar-width:thin;scrollbar-color:rgba(248,244,233,0.12) transparen
   <div class="info-panel">
     <button class="info-close" data-close="howto" aria-label="Close"></button>
     <h2>How to Use</h2>
-    <p><strong>Browse</strong> &mdash; Scroll through the glass cards to explore word roots. Use the <strong>A&ndash;Z bar</strong> to filter by first letter.</p>
-    <p><strong>Search</strong> &mdash; Type a root, meaning, or any word from the book. If the word belongs to a root, that root's card will appear with a match highlight.</p>
-    <p><strong>Click a card</strong> &mdash; See the root's full notes, example words, and more vocabulary from the book. <strong>Click any word</strong> to expand its definition, pronunciation (US &amp; UK IPA), example sentence, and usage notes.</p>
-    <p><strong>Add entries</strong> &mdash; As you study <em>Merriam-Webster's Vocabulary Builder</em>, tell Claude which roots you've learned. Each card is built from the book's full word data.</p>
+    <p><strong>Browse</strong> &mdash; Scroll through the glass cards to explore word roots. Use the <strong>A&ndash;Z bar</strong> to filter by first letter, or click <strong>Quizzes</strong> / <strong>Review Quizzes</strong> to access interactive exercises from the book.</p>
+    <p><strong>Search</strong> &mdash; Type a root, meaning, or any vocabulary word from <em>Merriam-Webster's Vocabulary Builder</em>. If the word belongs to a root, that root's card will appear with a match highlight.</p>
+    <p><strong>Click a card</strong> &mdash; See the root's full notes, example words, and more vocabulary. <strong>Click any word</strong> to expand its definition, pronunciation (US &amp; UK IPA), example sentence, and usage notes.</p>
+    <p><strong>Take a quiz</strong> &mdash; Each quiz covers two roots with 5 question types: Synonym, Analogy, Indicate (Same/Different), Match, and Fill-in-the-blank. Click an answer for instant feedback (green = correct, red = wrong), or use <strong>Check All</strong> for match and fill sections. Use <strong>&larr; Back</strong> to return to the quiz list.</p>
+    <p><strong>Review Quizzes</strong> &mdash; Comprehensive unit reviews that test all roots from each unit. Same interactive format as regular quizzes.</p>
+    <p><strong>Word look-up</strong> &mdash; Search any word from the book to instantly find its root card. Matching words are highlighted in green on the card.</p>
   </div>
 </div>
 
@@ -856,6 +860,21 @@ html,body{scrollbar-width:thin;scrollbar-color:rgba(248,244,233,0.12) transparen
   <div class="quiz-panel" id="quizPanel">
     <button class="quiz-close" id="quizClose" aria-label="Close"></button>
     <div id="quizContent"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- TERMS OVERLAY -->
+<!-- ══════════════════════════════════════════════════ -->
+<div class="info-overlay" id="termsOverlay">
+  <div class="info-panel">
+    <button class="info-close" data-close="terms" aria-label="Close"></button>
+    <h2>Terms of Use</h2>
+    <p>This website is a personal study tool built to accompany <strong><em>Merriam-Webster's Vocabulary Builder</em></strong> (Second Edition) by Mary Wood Cornog.</p>
+    <p><strong>Content</strong> &mdash; All quiz questions, vocabulary words, definitions, and example sentences are sourced from the book. Chinese translations are provided for study assistance. The book's full content remains the intellectual property of Merriam-Webster, Incorporated.</p>
+    <p><strong>Usage</strong> &mdash; This site is intended for personal, non-commercial educational use only. It is not affiliated with, endorsed by, or sponsored by Merriam-Webster, Inc.</p>
+    <p><strong>Data</strong> &mdash; No personal data is collected, stored, or transmitted. All quiz progress is stored locally in your browser and is never sent to any server.</p>
+    <p><strong>Disclaimer</strong> &mdash; While the quiz answers have been verified against the book's answer key, occasional errors may exist. Chinese translations are provided as a learning aid and may not be authoritative.</p>
   </div>
 </div>
 
@@ -1264,11 +1283,12 @@ updateClock();
 setInterval(updateClock, 1000);
 
 // Info overlay handlers
-document.querySelectorAll('.nav-link').forEach(item => {
+document.querySelectorAll('.nav-link, .footer-link').forEach(item => {
   item.addEventListener('click', () => {
     const id = item.dataset.info;
     if(id === 'howto') document.getElementById('howtoOverlay').classList.add('open');
     if(id === 'about') document.getElementById('aboutOverlay').classList.add('open');
+    if(id === 'terms') document.getElementById('termsOverlay').classList.add('open');
   });
 });
 
@@ -1277,6 +1297,7 @@ document.querySelectorAll('.info-close').forEach(btn => {
     const id = btn.dataset.close;
     if(id === 'howto') document.getElementById('howtoOverlay').classList.remove('open');
     if(id === 'about') document.getElementById('aboutOverlay').classList.remove('open');
+    if(id === 'terms') document.getElementById('termsOverlay').classList.remove('open');
   });
 });
 
