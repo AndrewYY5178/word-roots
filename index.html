@@ -1503,10 +1503,10 @@ function renderCheckAllSection(sec, si){
   const answers = quizState._checkAllAnswers || {};
   const questionsHTML = sec.questions.map((q, qi) => {
     const userVal = answers[qi];
-    let cls = '';
-    if(hasSubmitted){ cls = userVal == q.ans ? ' correct' : ' wrong'; }
     const ans = String(q.ans);
     const ansIdx = (ans.length === 1 && ans >= 'a' && ans <= 'h') ? ans.charCodeAt(0)-97 : parseInt(ans);
+    let cls = '';
+    if(hasSubmitted){ cls = userVal == ansIdx ? ' correct' : ' wrong'; }
     return `<div class="quiz-q" data-si="${si}" data-qi="${qi}"><div class="quiz-q-num">${qi+1}. ${esc(q.word || q.text)}</div><div class="quiz-q-opts">${q.opts.map((o, oi) => {
       const isSelected = userVal == oi;
       let oCls = 'quiz-opt' + (isSelected ? ' selected' : '') + (hasSubmitted && isSelected ? cls : '');
