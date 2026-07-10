@@ -816,6 +816,13 @@ html,body{scrollbar-width:thin;scrollbar-color:rgba(248,244,233,0.12) transparen
     </div>
   </div>
 
+  <!-- Unit Bar -->
+  <div class="az-bar-wrap">
+    <div class="az-bar" id="unitBar">
+      <button class="az-btn all-btn active" data-unit="all">ALL UNITS</button>
+    </div>
+  </div>
+
   <!-- Grid -->
   <div class="grid" id="grid"></div>
 
@@ -832,7 +839,7 @@ html,body{scrollbar-width:thin;scrollbar-color:rgba(248,244,233,0.12) transparen
   <div class="info-panel">
     <button class="info-close" data-close="howto" aria-label="Close"></button>
     <h2>How to Use</h2>
-    <p><strong>Browse</strong> &mdash; Scroll through the glass cards to explore word roots. Use the <strong>A&ndash;Z bar</strong> to filter by first letter, or click <strong>Quizzes</strong> / <strong>Review Quizzes</strong> to access interactive exercises from the book.</p>
+    <p><strong>Browse</strong> &mdash; Scroll through the glass cards to explore word roots. Filter by <strong>first letter</strong> (A&ndash;Z) or by <strong>Unit</strong> (1&ndash;30) using the bars below the search box. Click <strong>Quizzes</strong> / <strong>Review Quizzes</strong> to access interactive exercises.</p>
     <p><strong>Search</strong> &mdash; Type a root, meaning, or any vocabulary word from <em>Merriam-Webster's Vocabulary Builder</em>. If the word belongs to a root, that root's card will appear with a match highlight.</p>
     <p><strong>Click a card</strong> &mdash; See the root's full notes, example words, and more vocabulary. <strong>Click any word</strong> to expand its definition, pronunciation (US &amp; UK IPA), example sentence, and usage notes.</p>
     <p><strong>Take a quiz</strong> &mdash; Each quiz covers two roots with 5 question types: Synonym, Analogy, Indicate (Same/Different), Match, and Fill-in-the-blank. Click an answer for instant feedback (green = correct, red = wrong), or use <strong>Check All</strong> for match and fill sections. Use <strong>&larr; Back</strong> to return to the quiz list.</p>
@@ -901,7 +908,7 @@ html,body{scrollbar-width:thin;scrollbar-color:rgba(248,244,233,0.12) transparen
    - words: full vocabulary list from the book (searchable)
    ─────────────────────────────────────── */
 const WORD_DATA = [{
-    root: "BENE",
+    root: "BENE", unit: 1,
     meaning: "well, good",
     examples: ["benefit", "beneficial", "benevolent"],
     words: ["benediction", "benefactor", "beneficiary", "benevolence"],
@@ -958,7 +965,7 @@ const WORD_DATA = [{
       }
     }
   }, {
-    root: "AM",
+    root: "AM", unit: 1,
     meaning: "to love",
     examples: ["amiable", "amicable", "enamored"],
     words: ["amicable", "enamored", "amorous", "paramour"],
@@ -1001,7 +1008,7 @@ const WORD_DATA = [{
       }
     }
   }, {
-    root: "BELL",
+    root: "BELL", unit: 1,
     meaning: "war",
     examples: ["antebellum", "bellicose", "rebellion"],
     words: ["antebellum", "bellicose", "belligerence", "rebellion"],
@@ -1037,7 +1044,7 @@ const WORD_DATA = [{
       }
     }
   }, {
-    root: "PAC",
+    root: "PAC", unit: 1,
     meaning: "peace, agreement",
     examples: ["pacify", "pacifist", "pact"],
     words: ["pacify", "pacifist", "pact", "pace"],
@@ -1078,6 +1085,7 @@ const WORD_DATA = [{
    [STATE]
    ─────────────────────────────────────── */
 let activeLetter = 'all';
+let activeUnit = 'all';
 let searchQuery = '';
 
 /* ───────────────────────────────────────
@@ -1103,6 +1111,35 @@ function updateAZState(){
 }
 
 /* ───────────────────────────────────────
+   [UNIT BAR]
+   ─────────────────────────────────────── */
+const unitBar = document.getElementById('unitBar');
+for(let u = 1; u <= 30; u++){
+  const btn = document.createElement('button');
+  btn.className = 'az-btn';
+  btn.dataset.unit = u;
+  btn.textContent = u;
+  unitBar.appendChild(btn);
+}
+
+function updateUnitState(){
+  unitBar.querySelectorAll('.az-btn:not(.all-btn)').forEach(btn => {
+    const u = parseInt(btn.dataset.unit);
+    const has = WORD_DATA.some(e => e.unit === u);
+    btn.classList.toggle('empty-letter', !has);
+  });
+}
+
+unitBar.addEventListener('click', e => {
+  const btn = e.target.closest('.az-btn');
+  if(!btn) return;
+  unitBar.querySelectorAll('.az-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  activeUnit = btn.dataset.unit;
+  renderCards();
+});
+
+/* ───────────────────────────────────────
    [RENDER]
    ─────────────────────────────────────── */
 const grid = document.getElementById('grid');
@@ -1113,6 +1150,7 @@ const letterLabel = document.getElementById('letterLabel');
 function getFilteredData(){
   return WORD_DATA.filter(entry => {
     if(activeLetter !== 'all' && entry.root.charAt(0).toUpperCase() !== activeLetter) return false;
+    if(activeUnit !== 'all' && entry.unit !== parseInt(activeUnit)) return false;
     if(searchQuery){
       const q = searchQuery.toLowerCase();
       return (
@@ -1611,6 +1649,7 @@ normalizeQuiz(REVIEW_QUIZZES);
    [INIT]
    ─────────────────────────────────────── */
 updateAZState();
+updateUnitState();
 renderCards();
 </script>
 
