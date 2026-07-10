@@ -342,6 +342,8 @@ body::after{
   color:var(--warm-dim);transition:all 0.2s ease;margin-top:10px;
 }
 .quiz-submit:hover{background:rgba(248,244,233,0.18);color:var(--warm);}
+.quiz-back{font-family:'Inter',sans-serif;font-size:12px;font-weight:700;color:var(--warm-dim);cursor:pointer;transition:color 0.2s ease;user-select:none;}
+.quiz-back:hover{color:var(--warm);}
 
 /* ================================================================
    [SEARCH] — Liquid glass pill
@@ -1332,7 +1334,7 @@ function renderQuiz(){
   const quiz = getQuizData();
   if(!quiz) return;
   const key = quizState.key;
-  quizContent.innerHTML = `<h2>${esc(key)}</h2><h3>${quiz.roots ? quiz.roots.join(' + ') : 'Unit '+quiz.unit} · ${quiz.sections.reduce((s,sec)=>s+sec.questions.length,0)} questions</h3>${quiz.sections.map((sec, si) => `
+  quizContent.innerHTML = `<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px"><span class="quiz-back" id="quizBackBtn">&larr; Back</span></div><h2>${esc(key)}</h2><h3>${quiz.roots ? quiz.roots.join(' + ') : 'Unit '+quiz.unit} · ${quiz.sections.reduce((s,sec)=>s+sec.questions.length,0)} questions</h3>${quiz.sections.map((sec, si) => `
     <div class="quiz-section"><div class="quiz-section-label">${String.fromCharCode(65+si)}. ${esc(sec.label)}</div>
     ${sec.type === 'synonym' || sec.type === 'analogy' || sec.type === 'indicate' ? renderSynonymSection(sec, si) : ''}
     ${sec.type === 'match' ? renderCheckAllSection(sec, si) : ''}
@@ -1359,7 +1361,7 @@ function renderSynonymSection(sec, si){
       if(state.chosen != null && val == state.chosen && !isCorrect) cls += ' wrong';
       const label = isIndicate ? (o.charAt(0).toUpperCase()+o.slice(1)) : `${String.fromCharCode(97+oi)}. ${esc(o)}`;
       return `<span class="${cls}" data-oi="${val}"${done?' disabled':''}>${label}</span>`;
-    }).join('')}</div>${done ? `<div class="quiz-feedback">${isIndicate ? `Answer: <strong>${esc(ans)}</strong> — ${esc(q.cn||'')}` : q.opts.map((o,oi) => `<span class="cn">${String.fromCharCode(97+oi)}. ${esc(o)} = ${esc(q.cn?.[oi]||'')}</span><br>`).join('')}</div>` : ''}</div>`;
+    }).join('')}</div>${done ? `<div class="quiz-feedback">${isIndicate ? `Answer: <strong>${esc(ans)}</strong>${q.cn ? ` — ${esc(q.cn)}` : ''}` : q.opts.map((o,oi) => `<span class="cn">${String.fromCharCode(97+oi)}. ${esc(o)}${q.cn?.[oi] ? ` = ${esc(q.cn[oi])}` : ''}</span><br>`).join('')}</div>` : ''}</div>`;
   }).join('');
 }
 
@@ -1397,6 +1399,10 @@ function renderFillSection(sec, si){
 }
 
 function bindQuizEvents(){
+  // Back button
+  const backBtn = quizContent.querySelector('#quizBackBtn');
+  if(backBtn) backBtn.addEventListener('click', ()=> openQuiz(quizState.type));
+
   quizContent.querySelectorAll('.quiz-q[data-si] .quiz-opt').forEach(opt => {
     if(opt.hasAttribute('disabled')) return;
     const qDiv = opt.closest('.quiz-q');
@@ -1411,29 +1417,23 @@ function bindQuizEvents(){
     if(sec.type === 'synonym' || sec.type === 'analogy' || sec.type === 'indicate'){
       opt.addEventListener('click', () => {
         const q = sec.questions[qi];
-        const oi = opt.dataset.oi;
+        const rawOi = opt.dataset.oi;
         const ansKey = `${si}-${qi}`;
-        // Normalize comparison: ans may be letter (a-h) or "same"/"different"
         const ans = String(q.ans);
         let chosenVal, isCorrect;
         if(sec.type === 'indicate'){
-          chosenVal = oi;
-          isCorrect = (oi === ans);
+          isCorrect = (rawOi === ans);
+          chosenVal = rawOi;
         } else if(ans.length === 1 && ans >= 'a' && ans <= 'h'){
-          // Letter answer: convert chosen index to letter
-          const letter = String.fromCharCode(97 + parseInt(oi));
-          chosenVal = letter;
-          isCorrect = (letter === ans);
+          // Letter answer: data-oi is already a letter
+          isCorrect = (rawOi === ans);
+          chosenVal = rawOi;
         } else {
           // Numeric answer
-          chosenVal = parseInt(oi);
+          chosenVal = parseInt(rawOi);
           isCorrect = (chosenVal == ans);
         }
-        if(isCorrect){
-          quizState._answers[ansKey] = {chosen: chosenVal, done: true};
-        } else {
-          quizState._answers[ansKey] = {chosen: chosenVal, done: false};
-        }
+        quizState._answers[ansKey] = {chosen: chosenVal, done: isCorrect};
         renderQuiz();
       });
     }
@@ -1501,8 +1501,10 @@ function normalizeQuiz(obj){
         if(qq.o !== undefined) q.opts = qq.o;
         if(qq.a !== undefined) q.ans = qq.a;
         if(qq.x !== undefined) q.text = qq.x;
+        if(qq.cn !== undefined) q.cn = qq.cn;
         return q;
       })};
+      if(sec.wb !== undefined) s.wordBank = sec.wb;
       return s;
     });
     delete v.s;
