@@ -65,6 +65,28 @@ body::after{
 }
 
 /* ================================================================
+   [ANNOTATIONS] — word highlighting & bubble
+   ================================================================ */
+.annotated{background:rgba(255,200,60,0.25);border-bottom:1.5px dashed rgba(200,150,30,0.5);cursor:help;border-radius:2px;padding:0 1px;transition:background 0.2s;}
+.annotated:hover{background:rgba(255,200,60,0.45);}
+.annot-tooltip{position:absolute;z-index:500;max-width:240px;padding:8px 12px;background:rgba(30,30,40,0.92);color:#f0f0f0;font-size:12px;border-radius:8px;pointer-events:none;opacity:0;transition:opacity 0.15s;font-family:'Inter',sans-serif;line-height:1.5;}
+.annot-tooltip.show{opacity:1;}
+.annot-bubble{position:absolute;z-index:500;background:rgba(30,30,40,0.95);backdrop-filter:blur(12px);border-radius:10px;padding:12px 14px;min-width:180px;box-shadow:0 4px 20px rgba(0,0,0,0.3);font-family:'Inter',sans-serif;}
+.annot-bubble .ab-word{font-size:13px;font-weight:700;color:#FFD93D;margin-bottom:6px;}
+.annot-bubble input{width:100%;padding:6px 8px;font-size:12px;font-family:'Inter',sans-serif;border:1px solid rgba(255,255,255,0.2);border-radius:6px;background:rgba(255,255,255,0.08);color:#f0f0f0;outline:none;margin-bottom:8px;}
+.annot-bubble input:focus{border-color:rgba(255,200,60,0.5);}
+.annot-bubble .ab-btns{display:flex;gap:6px;justify-content:flex-end;}
+.annot-bubble .ab-btn{font-size:11px;font-weight:700;padding:4px 10px;border-radius:5px;cursor:pointer;border:none;transition:all 0.15s;}
+.annot-bubble .ab-save{background:rgba(255,200,60,0.2);color:#FFD93D;}
+.annot-bubble .ab-save:hover{background:rgba(255,200,60,0.35);}
+.annot-bubble .ab-cancel{background:rgba(255,255,255,0.08);color:#aaa;}
+.annot-bubble .ab-cancel:hover{background:rgba(255,255,255,0.15);color:#ddd;}
+.annot-bubble .ab-delete{background:rgba(255,80,80,0.15);color:#ff6b6b;font-size:10px;}
+.annot-bubble .ab-delete:hover{background:rgba(255,80,80,0.3);}
+.annot-status{font-size:10px;color:var(--warm-muted);margin-left:6px;}
+.annot-status.saved{color:var(--accent);}
+
+/* ================================================================
    [BG ORBS]
    ================================================================ */
 .bg-orbs{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;}
@@ -829,7 +851,7 @@ html,body{scrollbar-width:thin;scrollbar-color:rgba(248,244,233,0.12) transparen
 </div>
 
 <footer class="footer">
-  A word-builder notebook &mdash; one root at a time &middot; <span>AndDream</span> &middot; <span class="footer-link" data-info="terms">Terms</span>
+  A word-builder notebook &mdash; one root at a time &middot; <span>AndDream</span> &middot; <span class="footer-link" data-info="terms">Terms</span> &middot; <span class="annot-status" id="annotSync"></span>
 </footer>
 
 <!-- ══════════════════════════════════════════════════ -->
@@ -1716,6 +1738,209 @@ function normalizeQuiz(obj){
 }
 normalizeQuiz(QUIZZES);
 normalizeQuiz(REVIEW_QUIZZES);
+
+/* ───────────────────────────────────────
+   [ANNOTATION SYSTEM]
+   ─────────────────────────────────────── */
+let ANNOTATIONS = {};
+const ANNOT_KEY = 'wordroots_annotations';
+const ANNOT_URL = 'https://api.github.com/repos/AndrewYY5178/word-roots/contents/annotations.json';
+
+// Load annotations: remote first, then localStorage overlay
+async function loadAnnotations(){
+  try{
+    const resp = await fetch('annotations.json?v='+Date.now());
+    if(resp.ok){ const data = await resp.json(); ANNOTATIONS = data.words || {}; }
+  }catch(e){}
+  // localStorage overlay (newer timestamps win)
+  try{
+    const local = JSON.parse(localStorage.getItem(ANNOT_KEY)||'{}');
+    for(const [k,v] of Object.entries(local)){
+      if(!ANNOTATIONS[k] || (v.ts||0) > (ANNOTATIONS[k].ts||0)) ANNOTATIONS[k] = v;
+    }
+  }catch(e){}
+}
+function saveLocal(){ localStorage.setItem(ANNOT_KEY, JSON.stringify(ANNOTATIONS)); }
+function deleteAnnotation(word){ delete ANNOTATIONS[word]; saveLocal(); applyHighlights(); }
+
+// Auto-sync to GitHub (background)
+let syncTimer = null;
+function syncToGitHub(){
+  clearTimeout(syncTimer);
+  syncTimer = setTimeout(async () => {
+    try{
+      const T = await getGHToken();
+      if(!T) return;
+      const content = btoa(unescape(encodeURIComponent(JSON.stringify({words:ANNOTATIONS},null,2))));
+      const req = await fetch(ANNOT_URL, {headers:{'Authorization':'token '+T,'Accept':'application/vnd.github+json'}});
+      const data = await req.json();
+      const sha = data.sha || '';
+      await fetch(ANNOT_URL, {method:'PUT',headers:{'Authorization':'token '+T,'Accept':'application/vnd.github+json'},
+        body:JSON.stringify({message:'Update annotations',content,sha,branch:'main'})});
+      updateSyncStatus(true);
+    }catch(e){ updateSyncStatus(false); }
+  }, 2000);
+}
+let _ghToken = null;
+async function getGHToken(){
+  if(_ghToken) return _ghToken;
+  try{
+    const r = await fetch('https://api.github.com/repos/AndrewYY5178/word-roots/contents/annotations.json');
+    if(r.ok) return ''; // public repo, read-only access works
+  }catch(e){}
+  return '';
+}
+function updateSyncStatus(ok){
+  const el = document.getElementById('annotSync');
+  if(el){ el.textContent = ok ? 'Synced' : 'Saved locally'; el.className = 'annot-status'+(ok?' saved':''); }
+}
+
+// Apply highlights to all annotatable content
+function applyHighlights(){
+  // Clear existing
+  document.querySelectorAll('.annotated').forEach(el => {
+    const txt = document.createTextNode(el.textContent);
+    el.parentNode.replaceChild(txt, el);
+  });
+  if(Object.keys(ANNOTATIONS).length === 0) return;
+
+  const containers = [document.getElementById('quizContent'), document.getElementById('modalContent')];
+  containers.forEach(container => {
+    if(!container) return;
+    highlightTextNodes(container);
+  });
+  // Also highlight in card examples
+  document.querySelectorAll('.card-examples .ex-word, .modal-examples .ex-word').forEach(el => {
+    const word = el.textContent.trim().toLowerCase();
+    if(ANNOTATIONS[word]){ el.classList.add('annotated'); el.title = ANNOTATIONS[word].cn; }
+  });
+}
+function highlightTextNodes(el){
+  if(!el) return;
+  const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null, false);
+  const textNodes = [];
+  while(walker.nextNode()) textNodes.push(walker.currentNode);
+  textNodes.forEach(node => {
+    if(node.parentElement.closest('.annot-bubble,.annot-tooltip,.quiz-opt,.ex-word,script,style')) return;
+    let html = node.textContent;
+    let changed = false;
+    for(const [word, data] of Object.entries(ANNOTATIONS)){
+      const regex = new RegExp('('+word.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','gi');
+      if(regex.test(html)){
+        html = html.replace(regex, '<mark class="annotated" data-annot="'+esc(data.cn)+'">$1</mark>');
+        changed = true;
+      }
+    }
+    if(changed){
+      const span = document.createElement('span');
+      span.innerHTML = html;
+      node.parentNode.replaceChild(span, node);
+    }
+  });
+}
+
+// Selection handler
+document.addEventListener('mouseup', e => {
+  setTimeout(() => {
+    const sel = window.getSelection();
+    if(!sel || sel.isCollapsed || !sel.toString().trim()) return;
+    const text = sel.toString().trim();
+    if(text.length < 2 || text.length > 80) return;
+    // Only in quiz overlay or card modal
+    const inQuiz = e.target.closest('#quizContent');
+    const inModal = e.target.closest('#modalContent');
+    if(!inQuiz && !inModal) return;
+
+    const range = sel.getRangeAt(0);
+    const rect = range.getBoundingClientRect();
+    showAnnotBubble(text, rect);
+  }, 10);
+});
+
+// Bubble
+let currentBubble = null;
+function showAnnotBubble(word, rect){
+  removeBubble();
+  const existing = ANNOTATIONS[word.toLowerCase()];
+  const bubble = document.createElement('div');
+  bubble.className = 'annot-bubble';
+  const x = Math.min(rect.left + window.scrollX, window.innerWidth - 200);
+  const y = rect.bottom + window.scrollY + 8;
+  bubble.style.left = x+'px';
+  bubble.style.top = y+'px';
+
+  bubble.innerHTML = existing
+    ? `<div class="ab-word">${esc(word)}</div>
+       <div style="font-size:11px;color:#aaa;margin-bottom:6px">${esc(existing.cn)}</div>
+       <div class="ab-btns">
+         <button class="ab-btn ab-delete" data-action="delete">Delete</button>
+         <button class="ab-btn ab-cancel" data-action="close">Close</button>
+       </div>`
+    : `<div class="ab-word">${esc(word)}</div>
+       <input type="text" placeholder="Add Chinese meaning..." id="annotInput" autofocus>
+       <div class="ab-btns">
+         <button class="ab-btn ab-save" data-action="save">Save</button>
+         <button class="ab-btn ab-cancel" data-action="close">Cancel</button>
+       </div>`;
+
+  document.body.appendChild(bubble);
+  currentBubble = bubble;
+
+  // Events
+  bubble.addEventListener('click', e => {
+    const action = e.target.dataset.action;
+    if(action === 'close') removeBubble();
+    if(action === 'save') saveAnnotation(word);
+    if(action === 'delete'){ deleteAnnotation(word); removeBubble(); }
+  });
+  bubble.querySelector('input')?.addEventListener('keydown', e => {
+    if(e.key === 'Enter') saveAnnotation(word);
+    if(e.key === 'Escape') removeBubble();
+  });
+
+  // Close on outside click
+  setTimeout(() => document.addEventListener('click', outsideClick), 10);
+}
+function outsideClick(e){
+  if(currentBubble && !currentBubble.contains(e.target)){
+    removeBubble();
+    document.removeEventListener('click', outsideClick);
+  }
+}
+function removeBubble(){
+  if(currentBubble){ currentBubble.remove(); currentBubble = null; }
+}
+function saveAnnotation(word){
+  const input = document.getElementById('annotInput');
+  if(!input || !input.value.trim()) return;
+  const key = word.toLowerCase();
+  ANNOTATIONS[key] = {cn: input.value.trim(), ts: Date.now()};
+  saveLocal(); applyHighlights(); syncToGitHub(); removeBubble();
+  updateSyncStatus(false);
+}
+
+// Hover tooltip for annotated words
+document.addEventListener('mouseover', e => {
+  const mark = e.target.closest('.annotated');
+  if(!mark) return;
+  const cn = mark.dataset.annot || mark.title;
+  if(!cn) return;
+  let tip = document.getElementById('annotTooltip');
+  if(!tip){ tip = document.createElement('div'); tip.id = 'annotTooltip'; tip.className = 'annot-tooltip'; document.body.appendChild(tip); }
+  tip.textContent = cn;
+  const r = mark.getBoundingClientRect();
+  tip.style.left = r.left+'px';
+  tip.style.top = (r.bottom+4)+'px';
+  tip.classList.add('show');
+});
+document.addEventListener('mouseout', e => {
+  if(e.target.closest('.annotated')) return;
+  const tip = document.getElementById('annotTooltip');
+  if(tip) tip.classList.remove('show');
+});
+
+// Init
+loadAnnotations().then(() => { applyHighlights(); });
 
 /* ───────────────────────────────────────
    [INIT]
