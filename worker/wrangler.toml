@@ -1,0 +1,14 @@
+name = "word-roots-annot"
+main = "src/index.js"
+compatibility_date = "2026-06-01"
+
+# KV holds a single blob under key "annotations":
+#   { words: { "<word_lowercase>": { cn, ts, del? } } }
+# The namespace id is filled in after `wrangler kv namespace create ANNOT`.
+[[kv_namespaces]]
+binding = "ANNOT"
+id = "a06a57507b8849febad94335823f58a5"
+
+# Write protection: set once with
+#   npx wrangler secret put ANNOT_SECRET
+# The frontend sends it as the `X-Annot-Key` request header on POST.
