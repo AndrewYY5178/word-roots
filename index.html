@@ -1755,18 +1755,32 @@ const ANNOT_SECRET_KEY = 'wordroots_annot_secret';
 // Cloud sync endpoint (Cloudflare Worker). Filled in after `wrangler deploy`.
 const ANNOT_API = 'https://word-roots-annot.5178.workers.dev';
 
-// Load annotations: cloud (Worker) first, then localStorage overlay
-async function loadAnnotations(){
-  try{
-    const resp = await fetch(ANNOT_API + '/annotations', {cache:'no-store'});
-    if(resp.ok){ const data = await resp.json(); ANNOTATIONS = (data && data.data && data.data.words) || {}; }
-  }catch(e){}
-  // localStorage overlay (newer timestamps win)
+// Load annotations from localStorage synchronously — instant, works offline
+// / without VPN. Cloud is merged separately in the background.
+function loadLocalAnnotations(){
   try{
     const local = JSON.parse(localStorage.getItem(ANNOT_KEY)||'{}');
     for(const [k,v] of Object.entries(local)){
       if(!ANNOTATIONS[k] || (v.ts||0) > (ANNOTATIONS[k].ts||0)) ANNOTATIONS[k] = v;
     }
+  }catch(e){}
+}
+// Pull from the cloud (Worker) in the background, with a timeout so an
+// unreachable Worker (e.g. VPN off) never blocks or hides local annotations.
+async function pullCloudAnnotations(){
+  try{
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 5000);
+    const resp = await fetch(ANNOT_API + '/annotations', {cache:'no-store', signal: ctrl.signal});
+    clearTimeout(timer);
+    if(!resp.ok) return;
+    const data = await resp.json();
+    const cloud = (data && data.data && data.data.words) || {};
+    let changed = false;
+    for(const [k,v] of Object.entries(cloud)){
+      if(!ANNOTATIONS[k] || (v.ts||0) > (ANNOTATIONS[k].ts||0)){ ANNOTATIONS[k] = v; changed = true; }
+    }
+    if(changed){ saveLocal(); applyHighlights(); }
   }catch(e){}
 }
 function saveLocal(){ localStorage.setItem(ANNOT_KEY, JSON.stringify(ANNOTATIONS)); }
@@ -1788,11 +1802,15 @@ function syncToCloud(){
     if(!secret){ updateSyncStatus('local'); return; }
     updateSyncStatus('syncing');
     try{
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), 6000);
       const resp = await fetch(ANNOT_API + '/annotations', {
         method:'POST',
         headers:{'Content-Type':'application/json','X-Annot-Key':secret},
-        body: JSON.stringify({words: ANNOTATIONS})
+        body: JSON.stringify({words: ANNOTATIONS}),
+        signal: ctrl.signal
       });
+      clearTimeout(timer);
       if(resp.ok){
         const data = await resp.json();
         if(data && data.data && data.data.words){
@@ -2001,7 +2019,7 @@ document.addEventListener('mouseout', e => {
 });
 
 // Init
-loadAnnotations().then(() => { applyHighlights(); });
+loadLocalAnnotations();
 
 /* ───────────────────────────────────────
    [INIT]
@@ -2009,6 +2027,8 @@ loadAnnotations().then(() => { applyHighlights(); });
 updateAZState();
 updateUnitState();
 renderCards();
+applyHighlights();        // instant highlights from localStorage
+pullCloudAnnotations();   // merge cloud in the background (non-blocking)
 </script>
 
 </body>
