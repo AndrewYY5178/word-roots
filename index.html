@@ -69,6 +69,8 @@ body::after{
    ================================================================ */
 .annotated{background:rgba(255,200,60,0.25);border-bottom:1.5px dashed rgba(200,150,30,0.5);cursor:help;border-radius:2px;padding:0 1px;transition:background 0.2s;}
 .annotated:hover{background:rgba(255,200,60,0.45);}
+.annotated.mark{background:rgba(78,205,196,0.26);border-bottom-color:rgba(78,205,196,0.6);cursor:pointer;}
+.annotated.mark:hover{background:rgba(78,205,196,0.42);}
 .annot-tooltip{position:absolute;z-index:500;max-width:240px;padding:8px 12px;background:rgba(30,30,40,0.92);color:#f0f0f0;font-size:12px;border-radius:8px;pointer-events:none;opacity:0;transition:opacity 0.15s;font-family:'Inter',sans-serif;line-height:1.5;}
 .annot-tooltip.show{opacity:1;}
 .annot-bubble{position:absolute;z-index:500;background:rgba(30,30,40,0.95);backdrop-filter:blur(12px);border-radius:10px;padding:12px 14px;min-width:180px;box-shadow:0 4px 20px rgba(0,0,0,0.3);font-family:'Inter',sans-serif;}
@@ -724,6 +726,11 @@ html,body{scrollbar-width:thin;scrollbar-color:rgba(248,244,233,0.12) transparen
   background:rgba(248,244,233,0.06);
   padding:5px 12px;border-radius:12px;
 }
+.modal-quiz-links{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;}
+.mql-btn{font-family:'Inter',sans-serif;font-size:11px;font-weight:700;padding:6px 14px;border-radius:14px;cursor:pointer;background:rgba(78,205,196,0.14);border:0.5px solid rgba(78,205,196,0.35);color:#B8F0EC;transition:all 0.2s ease;}
+.mql-btn:hover{background:rgba(78,205,196,0.26);color:var(--warm);}
+.mql-btn.mql-review{background:rgba(248,244,233,0.08);border-color:rgba(248,244,233,0.18);color:var(--warm-dim);}
+.mql-btn.mql-review:hover{background:rgba(248,244,233,0.16);color:var(--warm);}
 
 /* ── Word detail panel (in modal) ── */
 .word-detail{
@@ -864,9 +871,9 @@ html,body{scrollbar-width:thin;scrollbar-color:rgba(248,244,233,0.12) transparen
     <h2>How to Use</h2>
     <p><strong>Browse</strong> &mdash; Scroll through the glass cards to explore word roots. Filter by <strong>first letter</strong> (A&ndash;Z) or by <strong>Unit</strong> (1&ndash;30) using the bars below the search box. Click <strong>Quizzes</strong> / <strong>Review Quizzes</strong> to access interactive exercises.</p>
     <p><strong>Search</strong> &mdash; Type a root, meaning, or any vocabulary word from <em>Merriam-Webster's Vocabulary Builder</em>. If the word belongs to a root, that root's card will appear with a match highlight.</p>
-    <p><strong>Click a card</strong> &mdash; See the root's full notes, example words, and more vocabulary. <strong>Click any word</strong> to expand its definition, pronunciation (US &amp; UK IPA), example sentence, and usage notes.</p>
+    <p><strong>Click a card</strong> &mdash; See the root's full notes, example words, and more vocabulary. <strong>Click any word</strong> to expand its definition, pronunciation (US &amp; UK IPA), example sentence, and usage notes. At the bottom, <strong>Practice</strong> buttons jump straight into the quizzes and unit review that cover this root.</p>
     <p><strong>Take a quiz</strong> &mdash; Each quiz covers two roots with 5 question types: Synonym, Analogy, Indicate (Same/Different), Match, and Fill-in-the-blank. Click an answer for instant feedback (green = correct, red = wrong), or use <strong>Check All</strong> for match and fill sections. Use <strong>&larr; Back</strong> to return to the quiz list.</p>
-    <p><strong>Annotate words</strong> &mdash; Add your own Chinese notes to unfamiliar words. Open a <strong>card</strong> or start a <strong>quiz</strong> first (annotation works inside those). <strong>On a computer</strong>, drag your cursor across a word or phrase to select it. <strong>On a phone</strong>, long-press a word and drag the handles to extend the selection &mdash; your phone's own Copy / Look-Up menu may appear above it, so just use the <span style="background:rgba(255,200,60,0.25);padding:0 2px;border-radius:2px">gold bubble</span> that pops up below the selection. Type your note and tap <strong>Save</strong>; the word then turns gold everywhere it appears. <strong>Hover</strong> (computer) or <strong>tap</strong> (phone) a gold word to read the note, and select it again to edit or delete.</p>
+    <p><strong>Annotate words</strong> &mdash; Add your own Chinese notes to unfamiliar words. Open a <strong>card</strong> or start a <strong>quiz</strong> first (annotation works inside those). <strong>On a computer</strong>, drag your cursor across a word or phrase to select it. <strong>On a phone</strong>, long-press a word and drag the handles to extend the selection &mdash; your phone's own Copy / Look-Up menu may appear above it, so just use the <span style="background:rgba(255,200,60,0.25);padding:0 2px;border-radius:2px">gold bubble</span> that pops up below the selection. Type your note and tap <strong>Save</strong> to get a <span style="background:rgba(255,200,60,0.25);padding:0 2px;border-radius:2px">gold</span> note, or leave the box <strong>blank</strong> and tap Save to just <span style="background:rgba(78,205,196,0.28);padding:0 2px;border-radius:2px">highlight</span> the word (mint, no note). <strong>Hover</strong> (computer) or <strong>tap</strong> (phone) a gold word to read its note, and select any highlighted word again to edit, re-color, or delete it.</p>
     <p><strong>Cloud sync &amp; Sync setup</strong> &mdash; Notes are saved in your browser instantly and stay after reloading. To back them up and share them across devices, scroll down to the <strong>footer</strong>, tap <em>Sync setup</em>, enter your <strong>sync passphrase</strong>, and tap <strong>Save</strong>. Do this <strong>once on every device and browser</strong> (phone and computer), using the <strong>same passphrase</strong> each time. The footer shows <em>Synced</em> when a backup succeeds, or <em>Saved locally</em> if the sync server can't be reached &mdash; either way your notes are safe on that device.</p>
     <p><strong>Word look-up</strong> &mdash; Search any word from the book to instantly find its root card. Matching words are highlighted in green on the card.</p>
   </div>
@@ -1432,6 +1439,19 @@ function bindCardClicks(){
   });
 }
 
+// Build the "Practice" quiz-link buttons for a root: the regular quiz(es) that
+// cover it, plus its unit's review quiz. Jumps straight into the quiz on click.
+function quizLinksHTML(entry){
+  const reg = Object.keys(QUIZZES).filter(k => (QUIZZES[k].roots||[]).includes(entry.root));
+  const rev = Object.keys(REVIEW_QUIZZES).filter(k => REVIEW_QUIZZES[k].unit === entry.unit);
+  if(!reg.length && !rev.length) return '';
+  const btns = [
+    ...reg.map(k => `<button class="mql-btn" data-qk="${esc(k)}" data-qt="quizzes">${esc(k)}</button>`),
+    ...rev.map(k => `<button class="mql-btn mql-review" data-qk="${esc(k)}" data-qt="review">${esc(k.replace('Quizzes ',''))}</button>`)
+  ].join('');
+  return `<div class="modal-section-label" style="margin-top:16px">Practice</div><div class="modal-quiz-links">${btns}</div>`;
+}
+
 function renderModalContent(entry, selectedWord){
   const q = searchQuery.toLowerCase();
   const allWords = [...entry.examples, ...(entry.words || [])];
@@ -1496,6 +1516,7 @@ function renderModalContent(entry, selectedWord){
     ${extraWordsHTML}
     ${detailHTML}
     ${matchedWords.length > 0 ? `<div style="margin-top:14px;font-size:11px;font-weight:600;color:#B8F0EC;">Search matched: ${esc(matchedWords.slice(0,6).join(', '))}${matchedWords.length > 6 ? '...' : ''}</div>` : ''}
+    ${quizLinksHTML(entry)}
     <div class="modal-letter">Starts with &ldquo;${esc(entry.root.charAt(0).toUpperCase())}&rdquo;</div>
   `;
 
@@ -1513,6 +1534,16 @@ function renderModalContent(entry, selectedWord){
         // Select new word
         renderModalContent(entry, word);
       }
+    });
+  });
+  // Jump straight into a quiz / review from the Practice buttons
+  modalContent.querySelectorAll('.mql-btn').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      closeModal();
+      quizOverlay.classList.add('open');
+      document.body.style.overflow = 'hidden';
+      startQuiz(btn.dataset.qk, btn.dataset.qt);
     });
   });
   // Re-apply annotation highlights to the freshly rendered modal content
@@ -1908,10 +1939,14 @@ function updateSyncStatus(state){
 
 // Apply highlights to all annotatable content
 function applyHighlights(){
-  // Clear existing
-  document.querySelectorAll('.annotated').forEach(el => {
+  // Clear existing: unwrap <mark> highlights back to text, but for ex-words just
+  // strip the classes/title (replacing them would destroy the span + its click handler).
+  document.querySelectorAll('mark.annotated').forEach(el => {
     const txt = document.createTextNode(el.textContent);
     el.parentNode.replaceChild(txt, el);
+  });
+  document.querySelectorAll('.ex-word.annotated').forEach(el => {
+    el.classList.remove('annotated','mark'); el.title = '';
   });
   if(Object.keys(ANNOTATIONS).length === 0) return;
 
@@ -1923,7 +1958,12 @@ function applyHighlights(){
   // Also highlight in card examples
   document.querySelectorAll('.card-examples .ex-word, .modal-examples .ex-word').forEach(el => {
     const word = el.textContent.trim().toLowerCase();
-    if(ANNOTATIONS[word] && !ANNOTATIONS[word].del){ el.classList.add('annotated'); el.title = ANNOTATIONS[word].cn; }
+    const a = ANNOTATIONS[word];
+    if(a && !a.del){
+      el.classList.add('annotated');
+      if(a.mark){ el.classList.add('mark'); el.title = ''; }
+      else { el.classList.remove('mark'); el.title = a.cn; }
+    }
   });
 }
 function highlightTextNodes(el){
@@ -1942,7 +1982,9 @@ function highlightTextNodes(el){
       // phrases still match; only letter-adjacency is excluded.
       const regex = new RegExp('(?<![A-Za-z])('+word.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')(?![A-Za-z])','gi');
       if(regex.test(html)){
-        html = html.replace(regex, '<mark class="annotated" data-annot="'+esc(data.cn)+'">$1</mark>');
+        const cls = data.mark ? 'annotated mark' : 'annotated';
+        const annotAttr = data.mark ? '' : ' data-annot="'+esc(data.cn)+'"';
+        html = html.replace(regex, '<mark class="'+cls+'"'+annotAttr+'>$1</mark>');
         changed = true;
       }
     }
@@ -1993,14 +2035,14 @@ function showAnnotBubble(word, rect){
 
   bubble.innerHTML = existing
     ? `<div class="ab-word">${esc(word)}</div>
-       <input type="text" placeholder="Edit the Chinese meaning..." id="annotInput">
+       <input type="text" placeholder="Edit note, or clear to just highlight" id="annotInput">
        <div class="ab-btns">
          <button class="ab-btn ab-save" data-action="save">Save</button>
          <button class="ab-btn ab-delete" data-action="delete">Delete</button>
          <button class="ab-btn ab-cancel" data-action="close">Close</button>
        </div>`
     : `<div class="ab-word">${esc(word)}</div>
-       <input type="text" placeholder="Add Chinese meaning..." id="annotInput" autofocus>
+       <input type="text" placeholder="Type a note, or leave blank to highlight" id="annotInput" autofocus>
        <div class="ab-btns">
          <button class="ab-btn ab-save" data-action="save">Save</button>
          <button class="ab-btn ab-cancel" data-action="close">Cancel</button>
@@ -2077,9 +2119,12 @@ function openSyncSetup(){
 }
 function saveAnnotation(word){
   const input = document.getElementById('annotInput');
-  if(!input || !input.value.trim()) return;
-  const key = word.toLowerCase();
-  ANNOTATIONS[key] = {cn: input.value.trim(), ts: Date.now()};
+  if(!input) return;
+  const text = input.value.trim();
+  const key = String(word).toLowerCase();
+  // Auto-detect: text entered → note (gold); left blank → pure highlight (mint).
+  if(text) ANNOTATIONS[key] = {cn: text, ts: Date.now()};
+  else ANNOTATIONS[key] = {cn: '', ts: Date.now(), mark: 1};
   saveLocal(); applyHighlights(); syncToCloud(); removeBubble();
 }
 
