@@ -1954,26 +1954,29 @@ function highlightTextNodes(el){
   });
 }
 
-// Selection handler
-document.addEventListener('mouseup', e => {
-  setTimeout(() => {
-    const sel = window.getSelection();
-    if(!sel || sel.isCollapsed || !sel.toString().trim()) return;
-    const text = sel.toString().trim();
-    if(text.length < 2 || text.length > 80) return;
-    // Only in quiz overlay or card modal
-    let target = e.target;
-    if(!target || !target.closest){ return; }
-    if(target.nodeType === 3) target = target.parentElement;
-    if(!target || !target.closest) return;
-    const inQuiz = target.closest('#quizContent');
-    const inModal = target.closest('#modalContent');
-    if(!inQuiz && !inModal) return;
-
-    const range = sel.getRangeAt(0);
-    const rect = range.getBoundingClientRect();
-    showAnnotBubble(text, rect);
-  }, 10);
+// Selection handler — works for both mouse (desktop) and touch (mobile).
+// Desktop fires on mouseup; mobile text selection doesn't fire a reliable
+// mouseup, so we also react to a settled selection (debounced selectionchange).
+function handleAnnotSelection(){
+  const sel = window.getSelection();
+  if(!sel || sel.isCollapsed || !sel.toString().trim()) return;
+  const text = sel.toString().trim();
+  if(text.length < 2 || text.length > 80) return;
+  // Selection must sit inside the quiz overlay or a card modal
+  let node = sel.anchorNode;
+  if(node && node.nodeType === 3) node = node.parentElement;
+  if(!node || !node.closest) return;
+  if(!node.closest('#quizContent') && !node.closest('#modalContent')) return;
+  // Skip if the same word's bubble is already open (dedupes mouseup + selectionchange)
+  if(currentBubble && currentBubble._annotWord === text.toLowerCase()) return;
+  const rect = sel.getRangeAt(0).getBoundingClientRect();
+  showAnnotBubble(text, rect);
+}
+document.addEventListener('mouseup', () => setTimeout(handleAnnotSelection, 10));
+let _selDebounce = null;
+document.addEventListener('selectionchange', () => {
+  clearTimeout(_selDebounce);
+  _selDebounce = setTimeout(handleAnnotSelection, 450);
 });
 
 // Bubble
@@ -2004,6 +2007,8 @@ function showAnnotBubble(word, rect){
 
   document.body.appendChild(bubble);
   currentBubble = bubble;
+  bubble._annotWord = String(word).toLowerCase();
+  setTimeout(() => bubble.querySelector('input')?.focus(), 20);
 
   // Events
   bubble.addEventListener('click', e => {
