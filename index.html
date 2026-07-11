@@ -1847,8 +1847,9 @@ document.addEventListener('mouseup', e => {
     const text = sel.toString().trim();
     if(text.length < 2 || text.length > 80) return;
     // Only in quiz overlay or card modal
-    const inQuiz = e.target.closest('#quizContent');
-    const inModal = e.target.closest('#modalContent');
+    const target = e.target.nodeType === 3 ? e.target.parentElement : e.target;
+    const inQuiz = target.closest('#quizContent');
+    const inModal = target.closest('#modalContent');
     if(!inQuiz && !inModal) return;
 
     const range = sel.getRangeAt(0);
