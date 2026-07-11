@@ -1937,7 +1937,10 @@ function highlightTextNodes(el){
     let changed = false;
     for(const [word, data] of Object.entries(ANNOTATIONS)){
       if(!data || data.del) continue;
-      const regex = new RegExp('('+word.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','gi');
+      // Whole-word match: don't highlight a substring inside a larger word
+      // (e.g. "probation" must NOT match inside "approbation"). Multi-word
+      // phrases still match; only letter-adjacency is excluded.
+      const regex = new RegExp('(?<![A-Za-z])('+word.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')(?![A-Za-z])','gi');
       if(regex.test(html)){
         html = html.replace(regex, '<mark class="annotated" data-annot="'+esc(data.cn)+'">$1</mark>');
         changed = true;
