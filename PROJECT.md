@@ -571,11 +571,49 @@ function bindMouseTracking(){
 
 ---
 
-## 十、文件清单
+## 十、批注云同步（Cloudflare Worker）
+
+> 2026-07-11 新增。替代早期「前端明文嵌 GitHub token」的不安全做法。
+
+### 10.1 架构
+
+- 前端拖选生词 → 加中文批注 → 存 `localStorage`（即时）→ 后台防抖同步到 **Cloudflare Worker**。
+- Worker 用 **KV** 存单个 blob（key `annotations`）：`{ words: { "<word_lowercase>": { cn, ts, del? } } }`。
+- **读取开放**（`GET /annotations` 无需口令），**写入需口令**（`POST /annotations` 校验 `X-Annot-Key` 头 == Worker secret `ANNOT_SECRET`）。
+- 服务端**按 `ts` 逐词合并**（新 ts 覆盖旧），多设备互不覆盖；删除用**墓碑** `{cn:'', ts, del:1}` 同步。
+
+### 10.2 关键文件与常量
+
+| 位置 | 内容 |
+|------|------|
+| `worker/wrangler.toml` | Worker 名 `word-roots-annot`，KV 绑定 `ANNOT`（id `a06a5750…f58a5`） |
+| `worker/src/index.js` | 路由 `GET/POST /annotations` + CORS + ts 合并（风格镜像 ielts-beach/worker） |
+| `index.html` `ANNOT_API` | `https://word-roots-annot.5178.workers.dev` |
+| `index.html` `ANNOT_SECRET_KEY` | localStorage 键 `wordroots_annot_secret`，存用户设的同步口令 |
+| 前端函数 | `loadAnnotations()`（从 Worker 拉）、`syncToCloud()`（带口令 POST）、`openSyncSetup()`（页脚「Sync setup」设口令）、`applyHighlights()`（Modal/quiz 渲染后自动重刷高亮） |
+
+### 10.3 部署与运维
+
+```
+cd word-roots/worker
+export CLOUDFLARE_API_TOKEN=… CLOUDFLARE_ACCOUNT_ID=…   # 取自 ielts-beach/.env
+npx wrangler deploy                                     # 更新 Worker
+printf '<口令>' | npx wrangler secret put ANNOT_SECRET  # 设/改写入口令
+# 清空全部批注：
+npx wrangler kv key put --namespace-id=a06a57507b8849febad94335823f58a5 annotations '{"words":{}}' --remote
+```
+
+> ⚠️ 安全：任何写权限凭证（GitHub token 等）**绝不可**写进 `index.html` 或任何进入公开仓库的文件。口令只存 Worker secret + 用户浏览器 localStorage。
+
+---
+
+## 十一、文件清单
 
 | 文件 | 说明 | 状态 |
 |------|------|:--:|
 | `index.html` | 网站全部代码 | ✅ 持续更新 |
+| `worker/wrangler.toml` + `worker/src/index.js` | 批注同步 Worker（Cloudflare KV，已部署） | ✅ 已部署 |
+| `annotations.json` | 旧静态批注文件，改用 Worker 后不再读取 | ⚪ 废弃 |
 | `PROJECT.md` | 本文档，项目完整说明 | ✅ 持续更新 |
 | `roots-data.json` | 267 词根定义（参考数据） | ✅ 已完成 |
 | `vocab-map.json` | 249 词根 × 1199 词汇映射（参考数据） | ✅ 已完成 |
