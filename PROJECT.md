@@ -578,9 +578,11 @@ function bindMouseTracking(){
 ### 10.1 架构
 
 - 前端拖选生词 → 加中文批注 → 存 `localStorage`（即时）→ 后台防抖同步到 **Cloudflare Worker**。
+- **本地优先加载**：启动时 `loadLocalAnnotations()` 同步读 localStorage 并立即高亮；`pullCloudAnnotations()` 在后台带 **5s 超时**拉云端合并。写入 `syncToCloud()` 也有 **6s 超时**。→ Worker 不可达时（如**没开 VPN**，国内 `*.workers.dev` 被墙）绝不阻塞 UI，批注照常秒显，仅云同步暂停。
 - Worker 用 **KV** 存单个 blob（key `annotations`）：`{ words: { "<word_lowercase>": { cn, ts, del? } } }`。
 - **读取开放**（`GET /annotations` 无需口令），**写入需口令**（`POST /annotations` 校验 `X-Annot-Key` 头 == Worker secret `ANNOT_SECRET`）。
 - 服务端**按 `ts` 逐词合并**（新 ts 覆盖旧），多设备互不覆盖；删除用**墓碑** `{cn:'', ts, del:1}` 同步。
+- ⚠️ **连通性**：`*.workers.dev` 在国内需 VPN 才能稳定访问。本地批注不受影响；跨设备云同步依赖 VPN。若需摆脱 VPN 依赖，可后续给 Worker 绑自定义域名（未必完全稳定）或换国内可达后端。
 
 ### 10.2 关键文件与常量
 
