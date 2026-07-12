@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Inter:ital,opsz,wght@0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;0,14..32,800;1,14..32,400&display=swap" rel="stylesheet">
-<script src="quiz-data.js?v=20260712e"></script>
+<script src="quiz-data.js?v=20260713a"></script>
 
 <style>
 /* ================================================================
@@ -1296,6 +1296,71 @@ const WORD_DATA = [{
         usage: "Levity was once thought to be a physical force exactly like gravity but pulling in the opposite direction, like the helium in a balloon. Today levity refers only to lightness in manner, and like its synonym frivolity, it now has an old-fashioned ring to it."
       }
     }
+  },
+  {
+    root: "Mythology & History", unit: 1,
+    meaning: "Words from Mythology and History (Unit 1)",
+    examples: ["spartan", "stoic", "hector"],
+    words: ["cicerone", "hector", "hedonism", "nestor", "spartan", "stentorian", "stoic", "sybaritic"],
+    notes: "Unit 1 vocabulary drawn from Greek & Roman myth, history, and philosophy — each word carries a story behind its meaning.",
+    wordDetails: {
+      "cicerone": {
+        pronunciationUS: "/ˌtʃɪtʃ.əˈroʊ.ni/",
+        pronunciationUK: "/ˌtʃɪtʃ.əˈrəʊ.ni/",
+        definition: "A guide, especially one who takes tourists to museums, monuments, or architectural sites and explains what is being seen.",
+        example: "On Crete they sought out a highly recommended cicerone, hoping to receive the best possible introduction to the noteworthy historical sites.",
+        usage: "From the Roman orator Cicero, renowned for his elegant, learned (and long-winded) style. 18th-century Italians named the eloquent guides who showed foreigners around ancient Roman sites after him."
+      },
+      "hector": {
+        pronunciationUS: "/ˈhɛk.tər/",
+        pronunciationUK: "/ˈhɛk.tə/",
+        definition: "To bully or harass by bluster or personal pressure.",
+        example: "He would swagger around the apartment entrance with his friends and hector the terrified inhabitants going in and out.",
+        usage: "In Homer's Iliad, Hector was the noble leader of Troy. The word took its bullying sense from the Hectors, a gang of rowdy ex-soldiers who terrorized 17th-century London."
+      },
+      "hedonism": {
+        pronunciationUS: "/ˈhiː.dən.ɪz.əm/",
+        pronunciationUK: "/ˈhɛd.ən.ɪz.əm/",
+        definition: "An attitude or way of life based on the idea that pleasure or happiness should be the chief goal.",
+        example: "In her new spirit of hedonism, she went out for a massage, picked up champagne and chocolate truffles, and made a date that evening with an old boyfriend.",
+        usage: "From the Greek word for \"pleasure.\" Both the ancient Epicureans and the 19th-century Utilitarians pursued hedonistic principles; philosophers often mean quiet, unselfish pleasures rather than sensual indulgence."
+      },
+      "nestor": {
+        pronunciationUS: "/ˈnɛs.tər/",
+        pronunciationUK: "/ˈnɛs.tə/",
+        definition: "A senior figure or leader in one's field.",
+        example: "The guest of honor was a nestor among journalists, and after dinner he shared some of his wisdom with the audience.",
+        usage: "Nestor was the eldest of the Greek leaders in Homer's Iliad, noted for his wisdom and talkativeness. Today a nestor is simply a wise, generous elder statesman of a field."
+      },
+      "spartan": {
+        pronunciationUS: "/ˈspɑːr.tən/",
+        pronunciationUK: "/ˈspɑː.tən/",
+        definition: "Marked by simplicity, avoidance of luxury, and often strict self-discipline or self-denial.",
+        example: "When he was single, he had lived a spartan life in a tiny, undecorated apartment with one chair, a table, and a bed.",
+        usage: "The ancient Greek city-state of Sparta enforced a severe, war-ready discipline on its citizens. \"Spartan accommodations\" today means bare and simple."
+      },
+      "stentorian": {
+        pronunciationUS: "/stɛnˈtɔːr.i.ən/",
+        pronunciationUK: "/stɛnˈtɔː.ri.ən/",
+        definition: "Extremely loud, often with especially deep richness of sound.",
+        example: "Even without a microphone, his stentorian voice was clearly audible in the last rows of the auditorium.",
+        usage: "Stentor was a Greek herald in the Iliad whose brass-like voice made him the natural choice for delivering proclamations to the assembled army, in an era before amplification."
+      },
+      "stoic": {
+        pronunciationUS: "/ˈstoʊ.ɪk/",
+        pronunciationUK: "/ˈstəʊ.ɪk/",
+        definition: "Seemingly indifferent to pleasure or pain.",
+        example: "She bore the pain of her broken leg with such stoic patience that most of us had no idea she was suffering.",
+        usage: "The Stoics were an ancient Greek and Roman philosophical movement (Cicero, Seneca, Marcus Aurelius) who sought freedom from all passions to attain wisdom — much like Buddhism."
+      },
+      "sybaritic": {
+        pronunciationUS: "/ˌsɪb.əˈrɪt.ɪk/",
+        pronunciationUK: "/ˌsɪb.əˈrɪt.ɪk/",
+        definition: "Marked by a luxurious or sensual way of life.",
+        example: "When I knew them they were living a sybaritic existence — hopping from resort to resort, each more splendid than the last — but a year later the money ran out.",
+        usage: "From Sybaris, an ancient Greek city in Italy famous for the wealth and luxury of its citizens, whose overconfidence led to their defeat and the city's destruction."
+      }
+    }
   }];
 
 // Concise Chinese glosses for each learned word — used by the Flashcards review.
@@ -1318,7 +1383,10 @@ const WORD_CN = {
   // GRAV
   "grave":"严重的；严肃的", "gravitas":"庄严，威严", "gravitate":"（被自然）吸引，趋向", "aggravate":"加重；使恼火",
   // LEV
-  "alleviate":"减轻，缓解", "elevation":"高度；提升，升高", "cantilever":"悬臂（梁）", "levity":"轻浮，不严肃"
+  "alleviate":"减轻，缓解", "elevation":"高度；提升，升高", "cantilever":"悬臂（梁）", "levity":"轻浮，不严肃",
+  // Words from Mythology & History (Unit 1)
+  "cicerone":"名胜古迹导游", "hector":"恐吓，威逼", "hedonism":"享乐主义", "nestor":"睿智长者，元老",
+  "spartan":"简朴的；严于律己的", "stentorian":"（声音）洪亮的", "stoic":"隐忍的，坚忍克己的", "sybaritic":"骄奢淫逸的"
 };
 
 /* ───────────────────────────────────────
