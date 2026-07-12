@@ -609,7 +609,21 @@ npx wrangler kv key put --namespace-id=a06a57507b8849febad94335823f58a5 annotati
 
 ---
 
-## 十一、文件清单
+## 十一、复习功能（Flashcards）
+
+> 2026-07-12 新增。每天快速过一遍学过的单词，防遗忘。
+
+- **入口**：顶部统计栏「Flashcards」芯片 → 打开 `#reviewOverlay`（复用 quiz-overlay 样式）。
+- **两种模式**：`EN → 中`（看英文想中文）/ `中 → EN`。切换即互换提示/答案侧。
+- **列表式 + 点击揭示**：每行 `提示词 | 答案`，答案侧默认 `filter:blur(5px)` 模糊，点一下 `.rv-answer.revealed` 显示（再点收回）。
+- **打乱**：右上角仅图标按钮（`SHUFFLE_ICON`，Feather shuffle SVG），Fisher-Yates 打乱 `reviewState.order`，防止靠位置记忆。
+- **按单元筛选**：`.rv-unit` pills（`All` + 数据中出现的各 Unit），`reviewState.unit` 控制；切换单元 `rebuildReview()` 重建列表。
+- **数据来源**：`const WORD_CN`（`index.html` 内，`WORD_DATA` 之后）——词→精简中文映射，覆盖所有已做卡片的词（当前 36 个）。新加词根时同步补 `WORD_CN` 词条。
+- **关键函数**：`buildReviewList()`（WORD_DATA ∩ WORD_CN，按 unit 过滤、去重）、`rebuildReview()`、`renderReview()`、`shuffleReview()`、`openReview()`/`closeReview()`。
+
+---
+
+## 十二、文件清单
 
 | 文件 | 说明 | 状态 |
 |------|------|:--:|
