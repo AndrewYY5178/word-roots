@@ -6,12 +6,15 @@ A personal study tool for recording and reviewing word roots and affixes from *M
 
 ## Features
 
-- **Word Root Cards** — Browse 2 root cards (BENE, AM) displayed as liquid glass cards with vocabulary words, definitions, IPA pronunciations, and usage notes
+- **Word Root Cards** — Browse 8 root cards (Unit 1: BENE, AM, BELL, PAC, CRIM, PROB, GRAV, LEV) displayed as liquid glass cards with vocabulary words, definitions, IPA pronunciations, and usage notes
 - **Interactive Quizzes** — 136 quizzes covering all 30 units with 5 question types: Synonym, Analogy, Indicate (Same/Different), Match, and Fill-in-the-blank
 - **Review Quizzes** — 28 comprehensive unit reviews
+- **Flashcards** — Daily word review with EN↔中 modes, tap-to-reveal, shuffle, and per-unit filtering
+- **Annotations** — Select any word to add a Chinese note (gold) or a plain highlight (mint); syncs across devices via a Cloudflare Worker
 - **Search** — Find roots by name, meaning, or any vocabulary word from the book
-- **A–Z Filter** — Browse roots alphabetically
+- **A–Z / Unit Filter** — Browse roots alphabetically or by unit
 - **Word Details** — Click any vocabulary word for US/UK IPA pronunciation, definition, example sentence, and etymology
+- **Cross-links** — Jump from a card to its quizzes, and from a quiz back to its root cards
 - **Liquid Glass Design** — Glassmorphism UI with deep teal and warm white color scheme
 
 ## Tech Stack
@@ -23,7 +26,7 @@ A personal study tool for recording and reviewing word roots and affixes from *M
 
 ## Data
 
-- **Word roots**: 2 entries (BENE, AM) with full word details
+- **Word roots**: 8 entries (Unit 1 complete) with full word details, plus concise Chinese glosses for 36 words (`WORD_CN`)
 - **Quizzes**: 136 quizzes (Unit 1–30) with answer keys
 - **Review quizzes**: 28 unit reviews
 - **CN translations**: 100% coverage of all quiz options
