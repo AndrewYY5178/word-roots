@@ -499,12 +499,18 @@ function bindMouseTracking(){
 
 #### 当前已录入
 
-| Quiz | 词根 | A 节 | B 节 |
-|------|------|------|------|
-| Quiz 1-1 | BENE + AM | Synonym (8q) | Analogy (8q) |
-| Quiz 1-2 | BELL + PAC | Match (8q) | Fill (8q) |
-| Quiz 1-3 | CRIM + PROB | Indicate (8q) | Match (8q) |
-| Review 1 | Unit 1 | Fill (14q) | — |
+> 2026-07-12：quiz 数据已从 EPUB **完整重建**。
+
+- **120 个 quiz**（30 单元 × Q1-4）+ **28 个 Review Quizzes**，共 2872 题，**每题都有答案（0 缺失）**。
+- 空的 Quiz X-5（神话/数字词）已移除。
+- 五种题型全覆盖；match 支持两种版式（词在左 / 定义在左）与 8~10 项。
+- **中文翻译**：选项、fill 词库、indicate 词对基本全覆盖（约 1220 词条）。
+
+**数据来源与重建流程**：
+1. 题目/选项/词库 ← EPUB quiz 页（`<h2>Quiz X-Y</h2>` + bold 小节头 + `<p>`/`<blockquote>`/`<td>`）。
+2. 答案 ← EPUB 答案键文件（`split_1825+`，`<span class="bold">A</span> 1.c 2.a…`，indicate 用 S/D）。
+3. 提取器已用 Unit 1 与现有正确数据交叉校验（答案 100% 吻合）。
+4. 翻译经并行子代理生成后回填，选项译文优先「收割」已有译文复用。
 
 #### 视觉规范
 
