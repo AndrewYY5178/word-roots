@@ -568,6 +568,7 @@ function bindMouseTracking(){
 - ✅ Playfair Display + Inter 字体组合
 - ✅ Shiny Gradient Text 标题动画
 - ✅ 响应式布局（移动端适配）
+- ✅ **跳转必有返回**：任何「跳转」操作（quiz↔卡片、卡片→quiz 等）都必须在目标页提供一个返回上一处的入口，绝不让用户走进死胡同。实现见 `navReturn` + `goBack()`：跳转时记录来处 `{label, restore}`，目标页显示「← {来处}」，返回后清除；从网格/列表等「全新入口」进入时清空 `navReturn`（无返回键）。**以后新增任何跳转都要遵循此模式。**
 
 ---
 
