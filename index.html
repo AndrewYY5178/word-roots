@@ -285,6 +285,10 @@ body::after{
 .rv-shuffle:hover{background:rgba(78,205,196,0.2);border-color:rgba(78,205,196,0.4);color:var(--warm);}
 .rv-shuffle svg{width:16px;height:16px;display:block;}
 .rv-count{font-family:'Inter',sans-serif;font-size:11px;color:var(--warm-muted);margin-bottom:10px;}
+.rv-units{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;}
+.rv-unit{font-family:'Inter',sans-serif;font-size:11px;font-weight:600;padding:4px 11px;border-radius:12px;cursor:pointer;background:rgba(248,244,233,0.05);border:0.5px solid rgba(248,244,233,0.1);color:var(--warm-muted);transition:all 0.2s ease;}
+.rv-unit:hover{color:var(--warm-dim);}
+.rv-unit.active{background:rgba(78,205,196,0.18);border-color:rgba(78,205,196,0.4);color:var(--warm);}
 .rv-list{display:flex;flex-direction:column;gap:2px;}
 .rv-row{display:flex;align-items:center;gap:12px;padding:9px 12px;border-radius:8px;transition:background 0.15s;}
 .rv-row:nth-child(odd){background:rgba(248,244,233,0.03);}
@@ -1905,11 +1909,12 @@ const reviewOverlay = document.getElementById('reviewOverlay');
 const reviewContent = document.getElementById('reviewContent');
 const reviewClose = document.getElementById('reviewClose');
 const SHUFFLE_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"></polyline><line x1="4" y1="20" x2="21" y2="3"></line><polyline points="21 16 21 21 16 21"></polyline><line x1="15" y1="15" x2="21" y2="21"></line><line x1="4" y1="4" x2="9" y2="9"></line></svg>';
-let reviewState = { mode: 'en2cn', list: [], order: [] };
+let reviewState = { mode: 'en2cn', unit: 'all', list: [], order: [] };
 
 function buildReviewList(){
   const seen = new Set(); const list = [];
   WORD_DATA.forEach(e => {
+    if(reviewState.unit !== 'all' && e.unit !== reviewState.unit) return;
     [...new Set([...(e.examples||[]), ...(e.words||[])])].forEach(w => {
       const key = w.toLowerCase();
       if(seen.has(key)) return;
@@ -1919,9 +1924,12 @@ function buildReviewList(){
   });
   return list;
 }
-function openReview(){
+function rebuildReview(){
   reviewState.list = buildReviewList();
   reviewState.order = reviewState.list.map((_, i) => i);
+}
+function openReview(){
+  rebuildReview();
   renderReview();
   reviewOverlay.classList.add('open');
   document.body.style.overflow = 'hidden';
@@ -1934,6 +1942,10 @@ function shuffleReview(){
 }
 function renderReview(){
   const { list, order, mode } = reviewState;
+  const units = [...new Set(WORD_DATA.map(e => e.unit))].sort((a, b) => a - b);
+  const unitPills = ['all', ...units].map(u =>
+    `<button class="rv-unit ${reviewState.unit===u?'active':''}" data-unit="${u}">${u==='all'?'All':'Unit '+u}</button>`
+  ).join('');
   const rows = order.map(i => {
     const it = list[i];
     const prompt = mode === 'en2cn' ? it.word : it.cn;
@@ -1949,9 +1961,14 @@ function renderReview(){
       </div>
       <button class="rv-shuffle" id="rvShuffle" title="Shuffle" aria-label="Shuffle">${SHUFFLE_ICON}</button>
     </div>
+    <div class="rv-units">${unitPills}</div>
     <div class="rv-count">${list.length} words &middot; tap the blurred side to reveal</div>
-    <div class="rv-list">${rows}</div>`;
+    <div class="rv-list">${rows || '<div class="rv-count">No words in this unit yet.</div>'}</div>`;
   reviewContent.querySelectorAll('.rv-mode').forEach(b => b.addEventListener('click', () => { reviewState.mode = b.dataset.mode; renderReview(); }));
+  reviewContent.querySelectorAll('.rv-unit').forEach(b => b.addEventListener('click', () => {
+    reviewState.unit = b.dataset.unit === 'all' ? 'all' : parseInt(b.dataset.unit);
+    rebuildReview(); renderReview();
+  }));
   reviewContent.querySelector('#rvShuffle').addEventListener('click', shuffleReview);
   reviewContent.querySelectorAll('.rv-answer').forEach(a => a.addEventListener('click', () => a.classList.toggle('revealed')));
 }
