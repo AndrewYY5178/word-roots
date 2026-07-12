@@ -394,6 +394,8 @@ body::after{
 .quiz-submit:hover{background:rgba(248,244,233,0.18);color:var(--warm);}
 .quiz-back{font-family:'Inter',sans-serif;font-size:12px;font-weight:700;color:var(--warm-dim);cursor:pointer;transition:color 0.2s ease;user-select:none;}
 .quiz-back:hover{color:var(--warm);}
+.modal-back{display:inline-block;margin-bottom:12px;font-family:'Inter',sans-serif;font-size:12px;font-weight:700;color:var(--warm-dim);cursor:pointer;transition:color 0.2s ease;user-select:none;}
+.modal-back:hover{color:var(--accent);}
 .quiz-root-links{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;}
 .quiz-root-btn{font-family:'Inter',sans-serif;font-size:11px;font-weight:700;padding:5px 12px;border-radius:14px;cursor:pointer;background:rgba(248,244,233,0.08);border:0.5px solid rgba(248,244,233,0.2);color:var(--warm-dim);transition:all 0.2s ease;}
 .quiz-root-btn:hover{background:rgba(78,205,196,0.2);border-color:rgba(78,205,196,0.4);color:var(--warm);}
@@ -1484,12 +1486,18 @@ const overlay = document.getElementById('modalOverlay');
 const modalContent = document.getElementById('modalContent');
 const modalClose = document.getElementById('modalClose');
 let currentModalEntry = null;  // track which entry is shown in modal
+// Cross-navigation return: remembers where a jump came from so the destination
+// can show a "← Back" that restores the origin. Set on a jump, cleared on any
+// fresh entry (grid card / quiz list), consumed by goBack().
+let navReturn = null;  // { label, restore }
+function goBack(){ const r = navReturn; navReturn = null; if(r) r.restore(); }
 
 function bindCardClicks(){
   document.querySelectorAll('.glass-card').forEach(card => {
     card.addEventListener('click', () => {
       const entry = getFilteredData()[parseInt(card.dataset.index)];
       if(!entry) return;
+      navReturn = null;  // opened fresh from the grid — no back target
       currentModalEntry = entry;
       renderModalContent(entry, null);
       overlay.classList.add('open');
@@ -1567,6 +1575,7 @@ function renderModalContent(entry, selectedWord){
   }
 
   modalContent.innerHTML = `
+    ${navReturn ? `<span class="modal-back" id="modalBackBtn">&larr; ${esc(navReturn.label)}</span>` : ''}
     <div class="modal-root">${esc(entry.root)}</div>
     <div class="modal-meaning">${esc(entry.meaning)}</div>
     ${entry.notes ? `<div class="modal-notes">${esc(entry.notes)}</div>` : ''}
@@ -1599,12 +1608,23 @@ function renderModalContent(entry, selectedWord){
   modalContent.querySelectorAll('.mql-btn').forEach(btn => {
     btn.addEventListener('click', e => {
       e.stopPropagation();
+      const originEntry = entry;
       closeModal();
       quizOverlay.classList.add('open');
       document.body.style.overflow = 'hidden';
+      // Remember this card so the quiz can offer a "← Back" to it
+      navReturn = { label: originEntry.root + ' card', restore: () => {
+        quizOverlay.classList.remove('open');
+        currentModalEntry = originEntry;
+        renderModalContent(originEntry, null);
+        overlay.classList.add('open');
+        document.body.style.overflow = 'hidden';
+      }};
       startQuiz(btn.dataset.qk, btn.dataset.qt);
     });
   });
+  // Modal "← Back" (shown only when this card was reached via a jump)
+  modalContent.querySelector('#modalBackBtn')?.addEventListener('click', goBack);
   // Re-apply annotation highlights to the freshly rendered modal content
   applyHighlights();
 }
@@ -1706,7 +1726,7 @@ function openQuiz(type){
     return `<div class="quiz-card-browse" data-quiz-key="${esc(k)}" data-type="${type}"><div class="q-name">${esc(k)}</div><div class="q-roots">${q.roots ? q.roots.join(' + ') : 'Unit '+q.unit} · ${q.sections.reduce((s,sec)=>s+sec.questions.length,0)} questions</div></div>`;
   }).join('')}</div>`;
   quizContent.querySelectorAll('.quiz-card-browse').forEach(card => {
-    card.addEventListener('click', () => startQuiz(card.dataset.quizKey, card.dataset.type));
+    card.addEventListener('click', () => { navReturn = null; startQuiz(card.dataset.quizKey, card.dataset.type); });
   });
   quizOverlay.classList.add('open');
 }
@@ -1735,7 +1755,8 @@ function renderQuiz(){
     ? quiz.roots.filter(r => WORD_DATA.some(e => e.root === r))
         .map(r => `<button class="quiz-root-btn" data-root="${esc(r)}">${esc(r)} &#8599;</button>`).join('')
     : '';
-  quizContent.innerHTML = `<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px"><span class="quiz-back" id="quizBackBtn">&larr; Back</span><span class="quiz-root-links">${rootBtns}</span></div><h2>${esc(key)}</h2><h3>${quiz.roots ? quiz.roots.join(' + ') : 'Unit '+quiz.unit} · ${quiz.sections.reduce((s,sec)=>s+sec.questions.length,0)} questions</h3>${quiz.sections.map((sec, si) => `
+  const backLabel = navReturn ? esc(navReturn.label) : 'Back';
+  quizContent.innerHTML = `<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px"><span class="quiz-back" id="quizBackBtn">&larr; ${backLabel}</span><span class="quiz-root-links">${rootBtns}</span></div><h2>${esc(key)}</h2><h3>${quiz.roots ? quiz.roots.join(' + ') : 'Unit '+quiz.unit} · ${quiz.sections.reduce((s,sec)=>s+sec.questions.length,0)} questions</h3>${quiz.sections.map((sec, si) => `
     <div class="quiz-section"><div class="quiz-section-label">${String.fromCharCode(65+si)}. ${esc(sec.label)}</div>
     ${sec.type === 'synonym' || sec.type === 'analogy' || sec.type === 'indicate' ? renderSynonymSection(sec, si) : ''}
     ${sec.type === 'match' ? renderCheckAllSection(sec, si) : ''}
@@ -1747,7 +1768,14 @@ function renderQuiz(){
     btn.addEventListener('click', () => {
       const entry = WORD_DATA.find(e => e.root === btn.dataset.root);
       if(!entry) return;
+      const backKey = quizState.key, backType = quizState.type;
       quizOverlay.classList.remove('open');
+      // Remember this quiz so the card can offer a "← Back" to it
+      navReturn = { label: backKey, restore: () => {
+        closeModal();
+        quizOverlay.classList.add('open');
+        startQuiz(backKey, backType);
+      }};
       currentModalEntry = entry;
       renderModalContent(entry, null);
       overlay.classList.add('open');
@@ -1814,7 +1842,7 @@ function renderFillSection(sec, si){
 function bindQuizEvents(){
   // Back button
   const backBtn = quizContent.querySelector('#quizBackBtn');
-  if(backBtn) backBtn.addEventListener('click', ()=> openQuiz(quizState.type));
+  if(backBtn) backBtn.addEventListener('click', ()=> { if(navReturn) goBack(); else openQuiz(quizState.type); });
 
   quizContent.querySelectorAll('.quiz-q[data-si] .quiz-opt').forEach(opt => {
     if(opt.hasAttribute('disabled')) return;
