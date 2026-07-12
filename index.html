@@ -1823,7 +1823,7 @@ function renderCheckAllSection(sec, si){
       return `<span class="${oCls}" data-oi="${oi}" data-qi="${qi}"${hasSubmitted?' disabled':''}>${esc(o)}</span>`;
     }).join('')}</div>${hasSubmitted ? `<div class="quiz-feedback" style="margin-top:4px">Ans: ${esc(q.opts[ansIdx]||'')}</div>` : ''}</div>`;
   }).join('');
-  return questionsHTML + `<div style="margin-top:10px">${!hasSubmitted ? '<button class="quiz-submit" id="checkAllBtn">Check All</button>' : ''}</div>`;
+  return questionsHTML + `<div style="margin-top:10px">${!hasSubmitted ? `<button class="quiz-submit" id="checkAllBtn" data-si="${si}">Check All</button>` : ''}</div>`;
 }
 
 function renderFillSection(sec, si){
@@ -1893,11 +1893,12 @@ function bindQuizEvents(){
     }
   });
 
-  // Check All button
+  // Check All button (match sections). Use the button's own section index so
+  // it works whether the match section is A, B, or later — not just the first.
   const checkAllBtn = quizContent.querySelector('#checkAllBtn');
   if(checkAllBtn){
     checkAllBtn.addEventListener('click', () => {
-      quizState._checkAllSI = parseInt(quizContent.querySelector('.quiz-q')?.dataset?.si || '0');
+      quizState._checkAllSI = parseInt(checkAllBtn.dataset.si || '0');
       quizState._checkAllSubmitted = true;
       renderQuiz();
     });
