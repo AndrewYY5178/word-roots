@@ -273,6 +273,26 @@ body::after{
 .stat-chip strong{color:var(--warm);font-weight:700;}
 .stat-chip.quiz-btn{cursor:pointer;transition:all 0.2s ease;}
 .stat-chip.quiz-btn:hover{background:rgba(248,244,233,0.18);border-color:rgba(248,244,233,0.3);color:var(--warm);}
+.stat-chip.flash-btn{cursor:pointer;transition:all 0.2s ease;}
+.stat-chip.flash-btn:hover{background:rgba(78,205,196,0.18);border-color:rgba(78,205,196,0.35);color:var(--warm);}
+/* Flashcards review */
+.rv-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:6px 0 8px;flex-wrap:wrap;}
+.rv-modes{display:flex;gap:6px;}
+.rv-mode{font-family:'Inter',sans-serif;font-size:12px;font-weight:700;padding:6px 14px;border-radius:14px;cursor:pointer;background:rgba(248,244,233,0.06);border:0.5px solid rgba(248,244,233,0.12);color:var(--warm-dim);transition:all 0.2s ease;}
+.rv-mode:hover{color:var(--warm);}
+.rv-mode.active{background:rgba(78,205,196,0.2);border-color:rgba(78,205,196,0.45);color:var(--warm);}
+.rv-shuffle{display:flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:10px;cursor:pointer;background:rgba(248,244,233,0.06);border:0.5px solid rgba(248,244,233,0.14);color:var(--warm-dim);transition:all 0.2s ease;flex:0 0 auto;}
+.rv-shuffle:hover{background:rgba(78,205,196,0.2);border-color:rgba(78,205,196,0.4);color:var(--warm);}
+.rv-shuffle svg{width:16px;height:16px;display:block;}
+.rv-count{font-family:'Inter',sans-serif;font-size:11px;color:var(--warm-muted);margin-bottom:10px;}
+.rv-list{display:flex;flex-direction:column;gap:2px;}
+.rv-row{display:flex;align-items:center;gap:12px;padding:9px 12px;border-radius:8px;transition:background 0.15s;}
+.rv-row:nth-child(odd){background:rgba(248,244,233,0.03);}
+.rv-row:hover{background:rgba(248,244,233,0.06);}
+.rv-prompt{flex:0 0 44%;font-family:'Inter',sans-serif;font-size:14px;font-weight:600;color:var(--warm);word-break:break-word;}
+.rv-answer{flex:1;font-family:'Inter',sans-serif;font-size:14px;color:var(--warm-dim);cursor:pointer;filter:blur(5px);opacity:0.7;transition:filter 0.15s,opacity 0.15s;user-select:none;word-break:break-word;}
+.rv-answer:hover{opacity:0.9;}
+.rv-answer.revealed{filter:none;opacity:1;cursor:default;}
 
 /* ── Quiz overlay ── */
 .quiz-overlay{
@@ -828,6 +848,7 @@ html,body{scrollbar-width:thin;scrollbar-color:rgba(248,244,233,0.12) transparen
       <span class="stat-chip" id="letterChip" style="display:none">Letter:&nbsp;<strong id="letterLabel"></strong></span>
       <span class="stat-chip quiz-btn" data-quiz="quizzes">Quizzes</span>
       <span class="stat-chip quiz-btn" data-quiz="reviews">Review Quizzes</span>
+      <span class="stat-chip flash-btn" id="flashBtn">Flashcards</span>
     </div>
   </header>
 
@@ -875,6 +896,7 @@ html,body{scrollbar-width:thin;scrollbar-color:rgba(248,244,233,0.12) transparen
     <p><strong>Search</strong> &mdash; Type a root, meaning, or any vocabulary word from <em>Merriam-Webster's Vocabulary Builder</em>. If the word belongs to a root, that root's card will appear with a match highlight.</p>
     <p><strong>Click a card</strong> &mdash; See the root's full notes, example words, and more vocabulary. <strong>Click any word</strong> to expand its definition, pronunciation (US &amp; UK IPA), example sentence, and usage notes. At the bottom, <strong>Practice</strong> buttons jump straight into the quizzes and unit review that cover this root.</p>
     <p><strong>Take a quiz</strong> &mdash; Each quiz covers two roots with 5 question types: Synonym, Analogy, Indicate (Same/Different), Match, and Fill-in-the-blank. Click an answer for instant feedback (green = correct, red = wrong), or use <strong>Check All</strong> for match and fill sections. Use <strong>&larr; Back</strong> to return to the quiz list, or the <strong>root buttons</strong> in the top-right to jump to a covered root's card.</p>
+    <p><strong>Flashcards</strong> &mdash; A quick daily drill of every word you've learned. Switch between <strong>EN &rarr; 中</strong> (see English, recall Chinese) and <strong>中 &rarr; EN</strong>. One side is blurred &mdash; <strong>tap it to reveal</strong> the answer. Use the <strong>shuffle</strong> button to randomize the order so you learn the meanings, not the positions.</p>
     <p><strong>Annotate words</strong> &mdash; Add your own Chinese notes to unfamiliar words. Open a <strong>card</strong> or start a <strong>quiz</strong> first (annotation works inside those). <strong>On a computer</strong>, drag your cursor across a word or phrase to select it. <strong>On a phone</strong>, long-press a word and drag the handles to extend the selection &mdash; your phone's own Copy / Look-Up menu may appear above it, so just use the <span style="background:rgba(255,200,60,0.25);padding:0 2px;border-radius:2px">gold bubble</span> that pops up below the selection. Type your note and tap <strong>Save</strong> to get a <span style="background:rgba(255,200,60,0.25);padding:0 2px;border-radius:2px">gold</span> note, or leave the box <strong>blank</strong> and tap Save to just <span style="background:rgba(78,205,196,0.28);padding:0 2px;border-radius:2px">highlight</span> the word (mint, no note). <strong>Hover</strong> (computer) or <strong>tap</strong> (phone) a gold word to read its note, and select any highlighted word again to edit, re-color, or delete it.</p>
     <p><strong>Cloud sync &amp; Sync setup</strong> &mdash; Notes are saved in your browser instantly and stay after reloading. To back them up and share them across devices, scroll down to the <strong>footer</strong>, tap <em>Sync setup</em>, enter your <strong>sync passphrase</strong>, and tap <strong>Save</strong>. Do this <strong>once on every device and browser</strong> (phone and computer), using the <strong>same passphrase</strong> each time. The footer shows <em>Synced</em> when a backup succeeds, or <em>Saved locally</em> if the sync server can't be reached &mdash; either way your notes are safe on that device.</p>
     <p><strong>Word look-up</strong> &mdash; Search any word from the book to instantly find its root card. Matching words are highlighted in green on the card.</p>
@@ -901,6 +923,16 @@ html,body{scrollbar-width:thin;scrollbar-color:rgba(248,244,233,0.12) transparen
   <div class="quiz-panel" id="quizPanel">
     <button class="quiz-close" id="quizClose" aria-label="Close"></button>
     <div id="quizContent"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- FLASHCARDS / REVIEW OVERLAY -->
+<!-- ══════════════════════════════════════════════════ -->
+<div class="quiz-overlay" id="reviewOverlay">
+  <div class="quiz-panel">
+    <button class="quiz-close" id="reviewClose" aria-label="Close"></button>
+    <div id="reviewContent"></div>
   </div>
 </div>
 
@@ -1259,6 +1291,29 @@ const WORD_DATA = [{
       }
     }
   }];
+
+// Concise Chinese glosses for each learned word — used by the Flashcards review.
+// Keys are lowercase words; add new roots' words here when their cards are added.
+const WORD_CN = {
+  // BENE
+  "benefit":"益处，好处；使受益", "beneficial":"有益的", "benevolent":"仁慈的，慈善的",
+  "benediction":"祝福，祝祷", "benefactor":"恩人，捐助者", "beneficiary":"受益人", "benevolence":"善心，仁慈",
+  // AM
+  "amiable":"和蔼可亲的", "amicable":"友好的，和睦的", "enamored":"倾心的，迷恋的",
+  "amorous":"多情的，恋爱的", "paramour":"情人",
+  // BELL
+  "antebellum":"战前的（尤指美国内战前）", "bellicose":"好斗的，好战的", "rebellion":"反叛，起义", "belligerence":"好战，敌意",
+  // PAC
+  "pacify":"使平静，安抚", "pacifist":"和平主义者", "pact":"协定，条约", "pace":"步速；踱步",
+  // CRIM
+  "criminology":"犯罪学", "incriminate":"归罪于，使显得有罪", "recrimination":"反责，互相指责", "decriminalize":"使非罪化，除罪化",
+  // PROB
+  "probity":"正直，诚实", "approbation":"认可，赞许", "reprobate":"堕落者，无赖", "probate":"遗嘱认证",
+  // GRAV
+  "grave":"严重的；严肃的", "gravitas":"庄严，威严", "gravitate":"（被自然）吸引，趋向", "aggravate":"加重；使恼火",
+  // LEV
+  "alleviate":"减轻，缓解", "elevation":"高度；提升，升高", "cantilever":"悬臂（梁）", "levity":"轻浮，不严肃"
+};
 
 /* ───────────────────────────────────────
    [STATE]
@@ -1842,6 +1897,69 @@ document.querySelectorAll('.quiz-btn').forEach(btn => {
 document.addEventListener('keydown', e => {
   if(e.key === 'Escape' && quizOverlay.classList.contains('open')) quizOverlay.classList.remove('open');
 });
+
+/* ───────────────────────────────────────
+   [FLASHCARDS / REVIEW]
+   ─────────────────────────────────────── */
+const reviewOverlay = document.getElementById('reviewOverlay');
+const reviewContent = document.getElementById('reviewContent');
+const reviewClose = document.getElementById('reviewClose');
+const SHUFFLE_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"></polyline><line x1="4" y1="20" x2="21" y2="3"></line><polyline points="21 16 21 21 16 21"></polyline><line x1="15" y1="15" x2="21" y2="21"></line><line x1="4" y1="4" x2="9" y2="9"></line></svg>';
+let reviewState = { mode: 'en2cn', list: [], order: [] };
+
+function buildReviewList(){
+  const seen = new Set(); const list = [];
+  WORD_DATA.forEach(e => {
+    [...new Set([...(e.examples||[]), ...(e.words||[])])].forEach(w => {
+      const key = w.toLowerCase();
+      if(seen.has(key)) return;
+      const cn = WORD_CN[key];
+      if(cn){ seen.add(key); list.push({ word: w, cn }); }
+    });
+  });
+  return list;
+}
+function openReview(){
+  reviewState.list = buildReviewList();
+  reviewState.order = reviewState.list.map((_, i) => i);
+  renderReview();
+  reviewOverlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeReview(){ reviewOverlay.classList.remove('open'); document.body.style.overflow = ''; }
+function shuffleReview(){
+  const o = reviewState.order;
+  for(let i = o.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); [o[i], o[j]] = [o[j], o[i]]; }
+  renderReview();
+}
+function renderReview(){
+  const { list, order, mode } = reviewState;
+  const rows = order.map(i => {
+    const it = list[i];
+    const prompt = mode === 'en2cn' ? it.word : it.cn;
+    const answer = mode === 'en2cn' ? it.cn : it.word;
+    return `<div class="rv-row"><span class="rv-prompt">${esc(prompt)}</span><span class="rv-answer">${esc(answer)}</span></div>`;
+  }).join('');
+  reviewContent.innerHTML = `
+    <h2>Flashcards</h2>
+    <div class="rv-bar">
+      <div class="rv-modes">
+        <button class="rv-mode ${mode==='en2cn'?'active':''}" data-mode="en2cn">EN &rarr; 中</button>
+        <button class="rv-mode ${mode==='cn2en'?'active':''}" data-mode="cn2en">中 &rarr; EN</button>
+      </div>
+      <button class="rv-shuffle" id="rvShuffle" title="Shuffle" aria-label="Shuffle">${SHUFFLE_ICON}</button>
+    </div>
+    <div class="rv-count">${list.length} words &middot; tap the blurred side to reveal</div>
+    <div class="rv-list">${rows}</div>`;
+  reviewContent.querySelectorAll('.rv-mode').forEach(b => b.addEventListener('click', () => { reviewState.mode = b.dataset.mode; renderReview(); }));
+  reviewContent.querySelector('#rvShuffle').addEventListener('click', shuffleReview);
+  reviewContent.querySelectorAll('.rv-answer').forEach(a => a.addEventListener('click', () => a.classList.toggle('revealed')));
+}
+document.getElementById('flashBtn').addEventListener('click', openReview);
+reviewClose.addEventListener('click', closeReview);
+reviewOverlay.addEventListener('click', e => { if(e.target === reviewOverlay) closeReview(); });
+document.addEventListener('keydown', e => { if(e.key === 'Escape' && reviewOverlay.classList.contains('open')) closeReview(); });
+
 
 /* ───────────────────────────────────────
    [NORMALIZE QUIZ DATA]
