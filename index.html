@@ -825,7 +825,6 @@ html,body{scrollbar-width:thin;scrollbar-color:rgba(248,244,233,0.12) transparen
     <h1 class="shiny-title">Roots &amp; Affixes</h1>
     <p class="subtitle">A Word-Builder Notebook &mdash; from Merriam-Webster Vocabulary Builder</p>
     <div class="stats-row">
-      <span class="stat-chip">Total:&nbsp;<strong id="countNum">0</strong></span>
       <span class="stat-chip" id="letterChip" style="display:none">Letter:&nbsp;<strong id="letterLabel"></strong></span>
       <span class="stat-chip quiz-btn" data-quiz="quizzes">Quizzes</span>
       <span class="stat-chip quiz-btn" data-quiz="reviews">Review Quizzes</span>
@@ -1323,7 +1322,6 @@ unitBar.addEventListener('click', e => {
    [RENDER]
    ─────────────────────────────────────── */
 const grid = document.getElementById('grid');
-const countNum = document.getElementById('countNum');
 const letterChip = document.getElementById('letterChip');
 const letterLabel = document.getElementById('letterLabel');
 
@@ -1347,7 +1345,6 @@ function getFilteredData(){
 
 function renderCards(){
   const data = getFilteredData();
-  countNum.textContent = data.length;
 
   if(activeLetter === 'all'){
     letterChip.style.display = 'none';
