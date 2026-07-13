@@ -73,7 +73,8 @@ body::after{
 .annotated.mark:hover{background:rgba(78,205,196,0.42);}
 .annot-tooltip{position:absolute;z-index:500;max-width:240px;padding:8px 12px;background:rgba(30,30,40,0.92);color:#f0f0f0;font-size:12px;border-radius:8px;pointer-events:none;opacity:0;transition:opacity 0.15s;font-family:'Inter',sans-serif;line-height:1.5;}
 .annot-tooltip.show{opacity:1;}
-.annot-bubble{position:absolute;z-index:500;background:rgba(30,30,40,0.95);backdrop-filter:blur(12px);border-radius:10px;padding:12px 14px;min-width:180px;box-shadow:0 4px 20px rgba(0,0,0,0.3);font-family:'Inter',sans-serif;}
+.annot-bubble{position:absolute;z-index:9999;background:rgba(30,30,40,0.95);backdrop-filter:blur(12px);border-radius:10px;padding:12px 14px;min-width:180px;box-shadow:0 4px 20px rgba(0,0,0,0.3);font-family:'Inter',sans-serif;}
+.annot-bubble.fixed-bubble{position:fixed;}
 .annot-bubble .ab-word{font-size:13px;font-weight:700;color:#FFD93D;margin-bottom:6px;}
 .annot-bubble input{width:100%;padding:6px 8px;font-size:12px;font-family:'Inter',sans-serif;border:1px solid rgba(255,255,255,0.2);border-radius:6px;background:rgba(255,255,255,0.08);color:#f0f0f0;outline:none;margin-bottom:8px;}
 .annot-bubble input:focus{border-color:rgba(255,200,60,0.5);}
@@ -2280,8 +2281,11 @@ function showAnnotBubble(word, rect){
   bubble.className = 'annot-bubble';
   const x = Math.min(rect.left + window.scrollX, window.innerWidth - 200);
   const y = rect.bottom + window.scrollY + 8;
-  bubble.style.left = x+'px';
-  bubble.style.top = y+'px';
+  // Bump to fixed positioning to work inside overlay stacking contexts
+  bubble.classList.add('fixed-bubble');
+  // Use viewport-relative coords (getBoundingClientRect already gives these)
+  bubble.style.left = Math.min(rect.left, window.innerWidth - 200)+'px';
+  bubble.style.top = (rect.bottom + 8)+'px';
 
   bubble.innerHTML = existing
     ? `<div class="ab-word">${esc(word)}</div>
@@ -2298,7 +2302,11 @@ function showAnnotBubble(word, rect){
          <button class="ab-btn ab-cancel" data-action="close">Cancel</button>
        </div>`;
 
-  document.body.appendChild(bubble);
+  // Append inside the active overlay so it shares its stacking context
+  const host = document.getElementById('quizOverlay').classList.contains('open') ? document.getElementById('quizOverlay')
+             : document.getElementById('modalOverlay').classList.contains('open') ? document.getElementById('modalOverlay')
+             : document.body;
+  host.appendChild(bubble);
   currentBubble = bubble;
   bubble._annotWord = String(word).toLowerCase();
   bubble._shownAt = Date.now();  // prevent immediate close from the triggering click
