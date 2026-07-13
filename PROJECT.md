@@ -501,7 +501,7 @@ function bindMouseTracking(){
 
 > 2026-07-12：quiz 数据已从 EPUB **完整重建**。
 
-- **120 个 quiz**（30 单元 × Q1-4）+ **28 个 Review Quizzes**，共 2872 题，**每题都有答案（0 缺失）**。
+- **150 个 quiz**（30 单元 × Q1-5，含 X-5 神话/历史词）+ **28 个 Review Quizzes**，共 2872+ 题，**每题都有答案（0 缺失）**。X-5 含三种格式：closest definition / synonym+antonym / does-not-belong。
 - 空的 Quiz X-5（神话/数字词）已移除。
 - 五种题型全覆盖；match 支持两种版式（词在左 / 定义在左）与 8~10 项。
 - **中文翻译**：选项、fill 词库、indicate 词对基本全覆盖（约 1220 词条）。
