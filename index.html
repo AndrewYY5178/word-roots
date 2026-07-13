@@ -2318,14 +2318,15 @@ function showAnnotBubble(word, rect){
     if(e.key === 'Escape') removeBubble();
   });
 
-  // Close on outside click
-  setTimeout(() => document.addEventListener('click', outsideClick), 10);
+  // Close on outside click — but only after the user has actually focused
+  // the input (so the selecting click doesn't instantly kill the bubble).
+  const inp = bubble.querySelector('input');
+  if(inp) inp.addEventListener('focus', () => {
+    if(!currentBubble) return;
+    document.addEventListener('click', outsideClick);
+  }, {once:true});
 }
 function outsideClick(e){
-  // Ignore clicks within ~300ms of the bubble appearing — they may be the
-  // same click/mouseup that triggered the text selection. Without this guard,
-  // the bubble flashes and disappears before the user can type.
-  if(currentBubble && currentBubble._shownAt && (Date.now() - currentBubble._shownAt < 300)) return;
   if(currentBubble && !currentBubble.contains(e.target)){
     removeBubble();
     document.removeEventListener('click', outsideClick);
@@ -2371,7 +2372,8 @@ function openSyncSetup(){
     if(e.key === 'Enter') commit();
     if(e.key === 'Escape') removeBubble();
   });
-  setTimeout(() => { inp && inp.focus(); document.addEventListener('click', outsideClick); }, 10);
+  if(inp) inp.addEventListener('focus', () => { if(currentBubble) document.addEventListener('click', outsideClick); }, {once:true});
+  setTimeout(() => { inp && inp.focus(); }, 10);
 }
 function saveAnnotation(word){
   const input = document.getElementById('annotInput');
