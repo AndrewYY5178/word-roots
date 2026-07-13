@@ -586,6 +586,7 @@ function bindMouseTracking(){
 
 - 前端拖选生词 → 加中文批注 → 存 `localStorage`（即时）→ 后台防抖同步到 **Cloudflare Worker**。
 - **本地优先加载**：启动时 `loadLocalAnnotations()` 同步读 localStorage 并立即高亮；`pullCloudAnnotations()` 在后台带 **5s 超时**拉云端合并。写入 `syncToCloud()` 也有 **6s 超时**。→ Worker 不可达时（如**没开 VPN**，国内 `*.workers.dev` 被墙）绝不阻塞 UI，批注照常秒显，仅云同步暂停。
+- ⚠️ **气泡防误删保护**（修了 5 轮才根治的 bug）：`removeBubble(force)` —— 无 `force` 参数时，若气泡内有活跃的 `#annotInput`，函数直接 return（不销毁）。只有用户点 Save/Delete/Close/Escape 才传 `force=true` 真销毁。同时：`showAnnotBubble` 开头的清理加了同样的 guard；`outsideClick` 仅在 `input` 获焦（`focus` 事件 + `{once:true}`）后才绑定；`handleAnnotSelection` 用 `if(currentBubble) return` 防止任何事件重建/替换已有气泡。**以后改批注逻辑时绝不可绕过这些保护。**
 - Worker 用 **KV** 存单个 blob（key `annotations`）：`{ words: { "<word_lowercase>": { cn, ts, del? } } }`。
 - **读取开放**（`GET /annotations` 无需口令），**写入需口令**（`POST /annotations` 校验 `X-Annot-Key` 头 == Worker secret `ANNOT_SECRET`）。
 - 服务端**按 `ts` 逐词合并**（新 ts 覆盖旧），多设备互不覆盖；删除用**墓碑** `{cn:'', ts, del:1}` 同步。
