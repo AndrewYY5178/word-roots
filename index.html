@@ -2301,6 +2301,7 @@ function showAnnotBubble(word, rect){
   document.body.appendChild(bubble);
   currentBubble = bubble;
   bubble._annotWord = String(word).toLowerCase();
+  bubble._shownAt = Date.now();  // prevent immediate close from the triggering click
   // Pre-fill the input when editing an existing note (set via .value to avoid attribute escaping)
   if(existing){ const inp = bubble.querySelector('#annotInput'); if(inp) inp.value = existing.cn; }
   setTimeout(() => bubble.querySelector('input')?.focus(), 20);
@@ -2321,6 +2322,10 @@ function showAnnotBubble(word, rect){
   setTimeout(() => document.addEventListener('click', outsideClick), 10);
 }
 function outsideClick(e){
+  // Ignore clicks within ~300ms of the bubble appearing — they may be the
+  // same click/mouseup that triggered the text selection. Without this guard,
+  // the bubble flashes and disappears before the user can type.
+  if(currentBubble && currentBubble._shownAt && (Date.now() - currentBubble._shownAt < 300)) return;
   if(currentBubble && !currentBubble.contains(e.target)){
     removeBubble();
     document.removeEventListener('click', outsideClick);
@@ -2348,6 +2353,7 @@ function openSyncSetup(){
     + '<button class="ab-btn ab-cancel" data-action="close">Cancel</button></div>';
   document.body.appendChild(bubble);
   currentBubble = bubble;
+  bubble._shownAt = Date.now();
   const commit = () => {
     const v = (document.getElementById('syncSecretInput').value || '').trim();
     if(v) localStorage.setItem(ANNOT_SECRET_KEY, v);
