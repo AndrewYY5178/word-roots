@@ -2260,7 +2260,7 @@ function handleAnnotSelection(){
   if(!node || !node.closest) return;
   if(!node.closest('#quizContent') && !node.closest('#modalContent')) return;
   // Skip if the same word's bubble is already open (dedupes mouseup + selectionchange)
-  if(currentBubble && currentBubble._annotWord === text.toLowerCase()) return;
+  if(currentBubble) return; // bubble already open — never replace/kill it
   const rect = sel.getRangeAt(0).getBoundingClientRect();
   showAnnotBubble(text, rect);
 }
