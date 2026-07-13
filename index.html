@@ -2275,7 +2275,8 @@ document.addEventListener('selectionchange', () => {
 // Bubble
 let currentBubble = null;
 function showAnnotBubble(word, rect){
-  removeBubble();
+  // Only kill the previous bubble if it's fully idle (no input open / not recently created)
+  if(!currentBubble || !currentBubble.querySelector('#annotInput')){ removeBubble(); }
   const existing = ANNOTATIONS[word.toLowerCase()];
   const bubble = document.createElement('div');
   bubble.className = 'annot-bubble';
@@ -2317,13 +2318,13 @@ function showAnnotBubble(word, rect){
   // Events
   bubble.addEventListener('click', e => {
     const action = e.target.dataset.action;
-    if(action === 'close') removeBubble();
+    if(action === 'close') removeBubble(true);
     if(action === 'save') saveAnnotation(word);
-    if(action === 'delete'){ deleteAnnotation(word); removeBubble(); }
+    if(action === 'delete'){ deleteAnnotation(word); removeBubble(true); }
   });
   bubble.querySelector('input')?.addEventListener('keydown', e => {
     if(e.key === 'Enter') saveAnnotation(word);
-    if(e.key === 'Escape') removeBubble();
+    if(e.key === 'Escape') removeBubble(true);
   });
 
   // Close on outside click — but only after the user has actually focused
@@ -2340,8 +2341,14 @@ function outsideClick(e){
     document.removeEventListener('click', outsideClick);
   }
 }
-function removeBubble(){
-  if(currentBubble){ currentBubble.remove(); currentBubble = null; }
+function removeBubble(force){
+  if(!currentBubble) return;
+  // Safety: never remove a bubble that has an active input, unless force=true
+  if(!force && currentBubble.querySelector('#annotInput')){
+    // do nothing — the user is typing or about to type
+    return;
+  }
+  currentBubble.remove(); currentBubble = null;
 }
 
 // Cloud-sync passphrase setup (footer "Sync setup"). Reuses .annot-bubble styling.
@@ -2367,18 +2374,18 @@ function openSyncSetup(){
     const v = (document.getElementById('syncSecretInput').value || '').trim();
     if(v) localStorage.setItem(ANNOT_SECRET_KEY, v);
     else localStorage.removeItem(ANNOT_SECRET_KEY);
-    removeBubble();
+    removeBubble(true);
     syncToCloud();
   };
   bubble.addEventListener('click', e => {
     const action = e.target.dataset.action;
-    if(action === 'close') removeBubble();
+    if(action === 'close') removeBubble(true);
     if(action === 'savesecret') commit();
   });
   const inp = bubble.querySelector('input');
   inp && inp.addEventListener('keydown', e => {
     if(e.key === 'Enter') commit();
-    if(e.key === 'Escape') removeBubble();
+    if(e.key === 'Escape') removeBubble(true);
   });
   if(inp) inp.addEventListener('focus', () => { if(currentBubble) document.addEventListener('click', outsideClick); }, {once:true});
   setTimeout(() => { inp && inp.focus(); }, 10);
@@ -2391,7 +2398,7 @@ function saveAnnotation(word){
   // Auto-detect: text entered → note (gold); left blank → pure highlight (mint).
   if(text) ANNOTATIONS[key] = {cn: text, ts: Date.now()};
   else ANNOTATIONS[key] = {cn: '', ts: Date.now(), mark: 1};
-  saveLocal(); applyHighlights(); syncToCloud(); removeBubble();
+  saveLocal(); applyHighlights(); syncToCloud(); removeBubble(true);
 }
 
 // Hover tooltip for annotated words
