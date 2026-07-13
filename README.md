@@ -6,8 +6,8 @@ A personal study tool for recording and reviewing word roots and affixes from *M
 
 ## Features
 
-- **Word Root Cards** — Browse 8 root cards (Unit 1: BENE, AM, BELL, PAC, CRIM, PROB, GRAV, LEV) displayed as liquid glass cards with vocabulary words, definitions, IPA pronunciations, and usage notes
-- **Interactive Quizzes** — 120 quizzes covering all 30 units with 5 question types: Synonym, Analogy, Indicate (Same/Different), Match, and Fill-in-the-blank
+- **Word Root Cards** — Browse 9 root cards (Unit 1: 8 word roots + Mythology &amp; History) displayed as liquid glass cards with vocabulary words, definitions, IPA pronunciations, and usage notes
+- **Interactive Quizzes** — 150 quizzes covering all 30 units with 5 question types: Synonym, Analogy, Indicate (Same/Different), Match, and Fill-in-the-blank (including Words from Mythology &amp; History quizzes)
 - **Review Quizzes** — 28 comprehensive unit reviews
 - **Flashcards** — Daily word review with EN↔中 modes, tap-to-reveal, shuffle, and per-unit filtering
 - **Annotations** — Select any word to add a Chinese note (gold) or a plain highlight (mint); syncs across devices via a Cloudflare Worker
@@ -26,8 +26,8 @@ A personal study tool for recording and reviewing word roots and affixes from *M
 
 ## Data
 
-- **Word roots**: 8 entries (Unit 1 complete) with full word details, plus concise Chinese glosses for 36 words (`WORD_CN`)
-- **Quizzes**: 120 quizzes (Unit 1–30, four per unit) with complete answer keys — every question is answerable
+- **Word roots**: 9 entries (Unit 1 complete: 8 roots + Mythology &amp; History) with full word details, plus concise Chinese glosses (`WORD_CN`)
+- **Quizzes**: 150 quizzes (Unit 1–30, five per unit — four root-pair quizzes + one Words from Mythology &amp; History quiz) with complete answer keys — every question is answerable
 - **Review quizzes**: 28 unit reviews
 - **CN translations**: Chinese for all options, fill word banks, and indicate pairs
 - **Data source**: quiz questions, answer keys and word banks re-extracted directly from the EPUB
