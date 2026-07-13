@@ -99,6 +99,7 @@ function mergeWords(stored, incoming) {
     if (!existing || its >= (Number(existing.ts) || 0)) {
       const entry = { cn: String(v.cn == null ? '' : v.cn), ts: its };
       if (v.del) entry.del = 1;
+      if (v.mark) entry.mark = 1;
       out[word] = entry;
     }
   }
