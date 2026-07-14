@@ -1800,7 +1800,7 @@ function bindCardClicks(){
 // Build the "Practice" quiz-link buttons for a root: the regular quiz(es) that
 // cover it, plus its unit's review quiz. Jumps straight into the quiz on click.
 function quizLinksHTML(entry){
-  const reg = Object.keys(QUIZZES).filter(k => (QUIZZES[k].roots||[]).includes(entry.root));
+  const reg = Object.keys(QUIZZES).filter(k => (QUIZZES[k].roots||[]).includes(entry.root) && QUIZZES[k].unit === entry.unit);
   const rev = Object.keys(REVIEW_QUIZZES).filter(k => REVIEW_QUIZZES[k].unit === entry.unit);
   if(!reg.length && !rev.length) return '';
   const btns = [
