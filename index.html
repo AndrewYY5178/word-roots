@@ -593,6 +593,11 @@ body::after{
 }
 .glass-card:hover .card-expand-hint{opacity:0.6;}
 
+/* ── Unit divider ── */
+.unit-divider{grid-column:1/-1;display:flex;align-items:center;gap:14px;margin:16px 0 8px;}
+.unit-divider::after{content:'';flex:1;height:0.5px;background:rgba(248,244,233,0.12);}
+.unit-divider-label{font-family:'Inter',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--warm-muted);white-space:nowrap;padding:5px 14px;background:rgba(248,244,233,0.05);border-radius:12px;border:0.5px solid rgba(248,244,233,0.08);}
+
 /* ================================================================
    [EMPTY STATE]
    ================================================================ */
@@ -2331,27 +2336,36 @@ function renderCards(){
     return;
   }
 
-  grid.innerHTML = data.map((entry, idx) => {
-    const q = searchQuery.toLowerCase();
-    // Determine which words match (if any)
-    const allWords = [...entry.examples, ...(entry.words || [])];
-    const matchedWords = q ? allWords.filter(w => w.toLowerCase().includes(q)) : [];
-
-    return `
-    <div class="glass-card" data-index="${idx}">
-      <div class="card-root">${esc(entry.root)}</div>
-      <div class="card-meaning">${esc(entry.meaning)}</div>
-      ${entry.notes ? `<div class="card-notes">${esc(entry.notes)}</div>` : ''}
-      <div class="card-examples">
-        ${entry.examples.map(ex => {
-          const isMatch = matchedWords.some(mw => mw.toLowerCase() === ex.toLowerCase());
-          return `<span class="ex-word${isMatch ? ' matched' : ''}">${esc(ex)}</span>`;
-        }).join('')}
-      </div>
-      ${matchedWords.length > 0 ? `<div class="card-word-match">Matches: ${esc(matchedWords.slice(0,4).join(', '))}${matchedWords.length > 4 ? '...' : ''}</div>` : ''}
-      <div class="card-expand-hint">click to expand</div>
-    </div>
-  `}).join('');
+  // Group by unit for visual separation
+  grid.innerHTML = '';
+  const grouped = {}; data.forEach(e => { const u = e.unit||0; (grouped[u] = grouped[u]||[]).push(e); });
+  const units = Object.keys(grouped).sort((a,b) => +a - +b);
+  let cardIdx = 0;
+  for(const u of units){
+    const label = u==='0' ? '' : `Unit ${u}`;
+    if(label) grid.innerHTML += `<div class="unit-divider"><span class="unit-divider-label">${label}</span></div>`;
+    for(const entry of grouped[u]){
+      const q = searchQuery.toLowerCase();
+      const allWords = [...entry.examples, ...(entry.words || [])];
+      const matchedWords = q ? allWords.filter(w => w.toLowerCase().includes(q)) : [];
+      grid.innerHTML += `
+        <div class="glass-card" data-index="${cardIdx}">
+          <div class="card-root">${esc(entry.root)}</div>
+          <div class="card-meaning">${esc(entry.meaning)}</div>
+          ${entry.notes ? `<div class="card-notes">${esc(entry.notes)}</div>` : ''}
+          <div class="card-examples">
+            ${entry.examples.map(ex => {
+              const isMatch = matchedWords.some(mw => mw.toLowerCase() === ex.toLowerCase());
+              return `<span class="ex-word${isMatch ? ' matched' : ''}">${esc(ex)}</span>`;
+            }).join('')}
+          </div>
+          ${matchedWords.length > 0 ? `<div class="card-word-match">Matches: ${esc(matchedWords.slice(0,4).join(', '))}${matchedWords.length > 4 ? '...' : ''}</div>` : ''}
+          <div class="card-expand-hint">click to expand</div>
+        </div>
+      `;
+      cardIdx++;
+    }
+  }
 
   bindMouseTracking();
   bindCardClicks();
