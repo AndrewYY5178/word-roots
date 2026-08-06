@@ -276,6 +276,8 @@ body::after{
 .stat-chip.quiz-btn:hover{background:rgba(248,244,233,0.18);border-color:rgba(248,244,233,0.3);color:var(--warm);}
 .stat-chip.flash-btn{cursor:pointer;transition:all 0.2s ease;}
 .stat-chip.flash-btn:hover{background:rgba(78,205,196,0.18);border-color:rgba(78,205,196,0.35);color:var(--warm);}
+.stat-chip.sync-setup-btn{cursor:pointer;transition:all 0.2s ease;}
+.stat-chip.sync-setup-btn:hover{background:rgba(78,205,196,0.18);border-color:rgba(78,205,196,0.35);color:var(--warm);}
 /* Flashcards review */
 .rv-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:6px 0 8px;flex-wrap:wrap;}
 .rv-modes{display:flex;gap:6px;}
@@ -861,6 +863,7 @@ html,body{scrollbar-width:thin;scrollbar-color:rgba(248,244,233,0.12) transparen
       <span class="stat-chip quiz-btn" data-quiz="quizzes">Quizzes</span>
       <span class="stat-chip quiz-btn" data-quiz="reviews">Review Quizzes</span>
       <span class="stat-chip flash-btn" id="flashBtn">Flashcards</span>
+      <span class="stat-chip sync-setup-btn" id="syncSetupBtn">Sync setup</span>
     </div>
   </header>
 
@@ -894,7 +897,7 @@ html,body{scrollbar-width:thin;scrollbar-color:rgba(248,244,233,0.12) transparen
 </div>
 
 <footer class="footer">
-  A word-builder notebook &mdash; one root at a time &middot; <span>AndDream</span> &middot; <span class="footer-link" data-info="terms">Terms</span> &middot; <span class="footer-link" data-info="sync">Sync setup</span> &middot; <span class="annot-status" id="annotSync"></span>
+  A word-builder notebook &mdash; one root at a time &middot; <span>AndDream</span> &middot; <span class="footer-link" data-info="terms">Terms</span> &middot; <span class="annot-status" id="annotSync"></span>
 </footer>
 
 <!-- ══════════════════════════════════════════════════ -->
@@ -3506,6 +3509,7 @@ function renderReview(){
   reviewContent.querySelectorAll('.rv-answer').forEach(a => a.addEventListener('click', () => a.classList.toggle('revealed')));
 }
 document.getElementById('flashBtn').addEventListener('click', openReview);
+document.getElementById('syncSetupBtn').addEventListener('click', openSyncSetup);
 reviewClose.addEventListener('click', closeReview);
 reviewOverlay.addEventListener('click', e => { if(e.target === reviewOverlay) closeReview(); });
 document.addEventListener('keydown', e => { if(e.key === 'Escape' && reviewOverlay.classList.contains('open')) closeReview(); });
